@@ -1,0 +1,49 @@
+# Node modules
+node_modules/
+
+# Environment (do not commit secrets)
+.env
+.env.local
+.env.*.local
+.env.*.backup
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Prisma
+prisma/migrations/
+prisma/dev.db
+.prisma/
+
+# Build / runtime artifacts
+dist/
+build/
+coverage/
+tmp/
+out/
+
+# Local data and uploaded files (do not commit)
+data/
+uploads/
+
+# Database files
+*.sqlite
+*.sqlite3
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.iml
+
+# Misc
+*.pid
+*.seed
+*.tgz

@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String  @id @default(cuid())
+  firstName String?
+  lastName  String?
+  email     String  @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model FormSubmission {
+  id               String           @id @default(cuid())
+  type             String?
+  existingContacts String?
+  firstName        String?
+  lastName         String?
+  email            String
+  confirmEmail     String?
+  phoneNo          String?
+  role             String?
+  userGroup        String           @default("None Selected")
+  createdAt        DateTime         @default(now())
+  files            SubmissionFile[]
+}
+
+model SubmissionFile {
+  id           String   @id @default(cuid())
+  originalName String
+  filename     String
+  path         String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  submission   FormSubmission @relation(fields: [submissionId], references: [id])
+  submissionId String
+}
