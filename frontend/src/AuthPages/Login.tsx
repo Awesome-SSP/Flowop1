@@ -123,7 +123,7 @@ const Login: React.FC = () => {
 
       showToast({ title: 'Login successful', description: 'You are now signed in', status: 'success', duration: 2000, isClosable: true });
       setLoading(false);
-      navigate('/dashboard', { replace: true });
+      navigate('/auth', { replace: true });
       return;
     } catch (e) {
       setLoading(false);

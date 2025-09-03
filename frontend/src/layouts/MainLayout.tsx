@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Box, useDisclosure } from "@chakra-ui/react";
+import { Flex, Box, useDisclosure, useColorModeValue } from "@chakra-ui/react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import SideBar from "../SideBar/SideBar";
 import NavBar from "./NavBar";
@@ -21,7 +21,12 @@ const MainLayout: React.FC = () => {
         <SideBar isOpen={disclosure.isOpen} onOpen={disclosure.onOpen} onClose={disclosure.onClose} />
 
         {/* main content area */}
-        <Box flex="1" p={{ base: 4, md: 6 }} overflowY="auto">
+        <Box
+          flex="1"
+          p={{ base: 4, md: 6 }}
+          overflowY="auto"
+          bg={useColorModeValue("purple.50", "purple.900")} // Complementary blue background: light blue in light mode, dark blue in dark mode
+        >
           <Outlet />
         </Box>
       </Flex>

@@ -1,89 +1,99 @@
-const mysql = require('mysql2/promise')
+const mysql = require('mysql2/promise');
+require('dotenv').config();
+let pool = null;
+let prisma = null;
+let _initialized = false;
 
-let pool = null
-let prisma = null
-
-// Initialize MySQL connection pool
-function initializeDatabase() {
+async function initializeDatabase() {
+  if (_initialized) return;
   if (!process.env.DATABASE_URL) {
-    console.warn('DATABASE_URL not found, database features disabled')
-    return
+    console.warn('DATABASE_URL not found, database features disabled');
+    return;
   }
 
   try {
-    // Create MySQL pool using connection string
-    pool = mysql.createPool(process.env.DATABASE_URL)
-    console.log('MySQL connection pool created')
+    // create pool from connection string (mysql2 supports URI)
+    pool = mysql.createPool(process.env.DATABASE_URL);
+    // quick verification
+    const conn = await pool.getConnection();
+    await conn.ping();
+    conn.release();
+    console.log('MySQL connection pool created and verified');
   } catch (error) {
-    console.error('Failed to create MySQL pool:', error.message)
+    console.error('Failed to create/verify MySQL pool:', error.message);
+    pool = null;
   }
 
-  // Initialize Prisma client if available
   try {
-    const { PrismaClient } = require('@prisma/client')
-    prisma = new PrismaClient()
-    console.log('Prisma client initialized')
+    const { PrismaClient } = require('@prisma/client');
+    prisma = new PrismaClient();
+    await prisma.$connect();
+    console.log('Prisma client connected');
   } catch (error) {
-    console.warn('Prisma client not available:', error.message)
+    console.warn('Prisma client not available or failed to connect:', error.message);
+    prisma = null;
   }
+
+  _initialized = true;
 }
 
-// Get MySQL pool
+// getters ensure initialization attempted
 function getPool() {
-  if (!pool) {
-    initializeDatabase()
-  }
-  return pool
+  if (!_initialized) initializeDatabase().catch((e) => console.error(e));
+  return pool;
 }
 
-// Get Prisma client
 function getPrisma() {
-  if (!prisma) {
-    initializeDatabase()
-  }
-  return prisma
+  if (!_initialized) initializeDatabase().catch((e) => console.error(e));
+  return prisma;
 }
 
-// Test database connection
 async function testConnection() {
   try {
     if (pool) {
-      const connection = await pool.getConnection()
-      await connection.ping()
-      connection.release()
-      console.log('Database connection successful')
-      return true
+      const conn = await pool.getConnection();
+      await conn.ping();
+      conn.release();
+      return true;
     }
-    return false
+    if (prisma) {
+      await prisma.$queryRaw`SELECT 1`;
+      return true;
+    }
+    return false;
   } catch (error) {
-    console.error('Database connection failed:', error.message)
-    return false
+    console.error('Database connection failed:', error.message);
+    return false;
   }
 }
 
-// Graceful shutdown
 async function closeDatabase() {
   try {
     if (pool) {
-      await pool.end()
-      console.log('MySQL pool closed')
+      await pool.end();
+      console.log('MySQL pool closed');
+      pool = null;
     }
     if (prisma) {
-      await prisma.$disconnect()
-      console.log('Prisma client disconnected')
+      await prisma.$disconnect();
+      console.log('Prisma client disconnected');
+      prisma = null;
     }
+    _initialized = false;
   } catch (error) {
-    console.error('Error closing database connections:', error.message)
+    console.error('Error closing database connections:', error.message);
   }
 }
 
-// Initialize on module load
-initializeDatabase()
+// start initialization in background (non-blocking)
+initializeDatabase().catch((err) => {
+  console.error('initializeDatabase error:', err && err.message ? err.message : err);
+});
 
 module.exports = {
   getPool,
   getPrisma,
   testConnection,
   closeDatabase,
-  initializeDatabase
-}
+  initializeDatabase,
+};

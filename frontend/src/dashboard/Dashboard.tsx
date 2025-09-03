@@ -14,7 +14,8 @@ import {
   useColorModeValue,
   Flex,
   Spacer,
-  Tooltip, // added
+  Tooltip,
+  Divider,
 } from "@chakra-ui/react";
 import { RepeatIcon } from "@chakra-ui/icons";
 
@@ -29,103 +30,81 @@ const sampleInitialData = (): ChartData[] => {
     { id: "c4", title: "Revenue", value: "$12.4k", series: makeSeries(12, 2000) },
     { id: "c5", title: "Conversion", value: "3.8%", series: makeSeries(12, 10) },
     { id: "c6", title: "API Latency", value: "120ms", series: makeSeries(12, 300) },
-    { id: "c7", title: "Orders", value: "892", series: makeSeries(12, 500) },
-    { id: "c8", title: "Sessions", value: "2.3k", series: makeSeries(12, 150) },
-    { id: "c9", title: "Bounce Rate", value: "22%", series: makeSeries(12, 100) },
   ];
 };
 
-/* Histogram - bar chart with axes and tooltips */
+/* Improved Histogram - cleaner bars with subtle grid */
 const Histogram: React.FC<{
   data: number[];
   labels?: string[];
   color?: string;
   height?: number;
-  yTicks?: number;
-}> = ({ data, labels = [], color = "#6B46C1", height = 96, yTicks = 4 }) => {
+}> = ({ data, labels = [], color = "#6B46C1", height = 100 }) => {
   const max = Math.max(...data) || 1;
-
   const formatNumber = (v: number) => {
     if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
     if (v >= 1_000) return `${(v / 1_000).toFixed(1)}k`;
     return String(v);
   };
 
-  // build Y tick values (from max down to 0)
-  const ticks = Array.from({ length: yTicks + 1 }, (_, i) => {
-    const pct = (yTicks - i) / yTicks; // descending
-    return { pct, value: Math.round(pct * max) };
-  });
-
-  // prepare x labels for bars (pad if missing)
-  const xLabels = labels.length >= data.length ? labels.slice(-data.length) : data.map((_, i) => labels[i] ?? `T-${data.length - i}`);
+  const xLabels = labels.length >= data.length ? labels.slice(-data.length) : data.map((_, i) => `T-${data.length - i}`);
 
   return (
-    <Box width="100%">
-      <Flex align="stretch">
-        {/* Y axis (left) */}
-        <VStack spacing={0} align="end" mr={3} minW="48px" height={`${height}px`} justifyContent="space-between">
-          {ticks.map((t, idx) => (
-            <Text key={idx} fontSize="xs" color="gray.500" userSelect="none">
-              {formatNumber(t.value)}
-            </Text>
-          ))}
-        </VStack>
+    <Box width="100%" position="relative">
+      {/* Subtle grid lines */}
+      <Box position="absolute" top="0" left="0" right="0" bottom="0" opacity={0.1}>
+        {[0, 25, 50, 75, 100].map((pct) => (
+          <Box key={pct} position="absolute" top={`${100 - pct}%`} left="0" right="0" height="1px" bg="gray.400" />
+        ))}
+      </Box>
 
-        {/* Bars area */}
-        <Box flex="1">
-          <Flex align="end" h={`${height}px`} gap={2} w="100%" aria-hidden>
-            {data.map((v, i) => {
-              const hPct = (v / max) * 100;
-              const label = xLabels[i] ?? String(i);
-              return (
-                <Tooltip key={i} label={`${label} — ${formatNumber(v)}`} placement="top" hasArrow openDelay={100}>
-                  <Box
-                    flex="1"
-                    h={`${hPct}%`}
-                    bg={color}
-                    borderRadius="4px"
-                    opacity={0.95}
-                    transition="all 120ms"
-                    _hover={{ transform: "translateY(-4px)", opacity: 1 }}
-                    aria-label={`${label}: ${v}`}
-                  />
-                </Tooltip>
-              );
-            })}
-          </Flex>
-
-          {/* X axis labels */}
-          <HStack spacing={2} mt={2} justify="space-between" align="center" px={0}>
-            {xLabels.map((l, i) => (
-              <Text key={i} fontSize="xs" color="gray.500" textAlign="center" flex="1" noOfLines={1}>
-                {l}
-              </Text>
-            ))}
-          </HStack>
-        </Box>
+      <Flex align="end" h={`${height}px`} gap={1} w="100%" position="relative" zIndex={1}>
+        {data.map((v, i) => {
+          const hPct = (v / max) * 100;
+          const label = xLabels[i] ?? String(i);
+          return (
+            <Tooltip key={i} label={`${label}: ${formatNumber(v)}`} placement="top" hasArrow>
+              <Box
+                flex="1"
+                h={`${hPct}%`}
+                bg={color}
+                borderRadius="2px"
+                minH="4px"
+                transition="all 200ms"
+                _hover={{ bg: "#805AD5", transform: "scaleY(1.05)" }}
+              />
+            </Tooltip>
+          );
+        })}
       </Flex>
+
+      {/* X labels */}
+      <HStack spacing={1} mt={2} justify="space-between">
+        {xLabels.map((l, i) => (
+          <Text key={i} fontSize="xs" color="gray.500" textAlign="center" flex="1">
+            {l}
+          </Text>
+        ))}
+      </HStack>
     </Box>
   );
 };
 
-/* Tile that shows only the histogram (no sparkline) */
+/* Cleaner Chart Tile */
 const ChartTile: React.FC<{ data: ChartData; onRefresh?: (id: string) => void }> = ({ data, onRefresh }) => {
   const bg = useColorModeValue("white", "gray.700");
   const muted = useColorModeValue("gray.500", "gray.300");
   return (
-    <Box bg={bg} borderRadius="md" boxShadow="sm" p={4} minH="160px" display="flex" flexDirection="column" justifyContent="space-between">
-      <HStack mb={2} align="start">
-        <VStack align="start" spacing={0}>
-          <Stat>
-            <StatLabel fontSize="xs" color={muted}>
-              {data.title}
-            </StatLabel>
-            <StatNumber fontSize="lg" color="gray.800">
-              {data.value}
-            </StatNumber>
-          </Stat>
-        </VStack>
+    <Box bg={bg} borderRadius="lg" boxShadow="sm" p={5} minH="200px" display="flex" flexDirection="column">
+      <HStack mb={3} align="center">
+        <Stat>
+          <StatLabel fontSize="sm" color={muted} fontWeight="500">
+            {data.title}
+          </StatLabel>
+          <StatNumber fontSize="2xl" color="gray.800" fontWeight="bold">
+            {data.value}
+          </StatNumber>
+        </Stat>
         <Spacer />
         <IconButton
           size="sm"
@@ -133,16 +112,18 @@ const ChartTile: React.FC<{ data: ChartData; onRefresh?: (id: string) => void }>
           variant="ghost"
           icon={<RepeatIcon />}
           onClick={() => onRefresh?.(data.id)}
+          _hover={{ bg: useColorModeValue("gray.100", "gray.600") }}
         />
       </HStack>
 
-      {/* ONLY histogram visual */}
-      <Box mt={2} flex="1" display="flex" flexDirection="column" justifyContent="flex-end">
+      <Divider mb={3} />
+
+      <Box flex="1">
         <Histogram
           data={data.series.slice(-12)}
-          labels={data.series.slice(-12).map((_, idx, arr) => `-${arr.length - idx}h`)} // simple relative labels
+          labels={data.series.slice(-12).map((_, idx, arr) => `-${arr.length - idx}h`)}
           color="#6B46C1"
-          height={96}
+          height={100}
         />
       </Box>
     </Box>
@@ -182,7 +163,7 @@ const Dashboard: React.FC = () => {
     const t = setInterval(() => {
       setCharts((prev) => prev.map((c) => ({ ...c, series: [...c.series.slice(1), Math.round(Math.random() * 150)] })));
       setLastUpdated(new Date());
-    }, 30_000);
+    }, 60_000); // Increased to 1 minute for less clutter
     return () => clearInterval(t);
   }, []);
 
@@ -194,23 +175,27 @@ const Dashboard: React.FC = () => {
     [charts.length, lastUpdated]
   );
 
+  const headingColor = useColorModeValue("gray.800", "gray.100"); // Add this for responsive text color
+
   return (
     <VStack align="stretch" spacing={6} p={6}>
       <HStack justify="space-between" align="center">
-        <Heading size="lg">Dashboard</Heading>
+        <Heading size="lg" color={headingColor}>  
+          Dashboard
+        </Heading>
         <HStack spacing={3}>
           <Text color="gray.600" fontSize="sm">
-            {info.total} charts • updated: {info.updated}
+            {info.total} metrics • updated: {info.updated}
           </Text>
-          <Button size="sm" onClick={refreshAll}>
-            Refresh all
+          <Button size="sm" colorScheme="purple" onClick={refreshAll}>
+            Refresh All
           </Button>
         </HStack>
       </HStack>
 
-      {/* show 9 histogram-only tiles */}
-      <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={4}>
-        {charts.slice(0, 9).map((c) => (
+      {/* Reduced to 6 tiles for less clutter */}
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} spacing={6}>
+        {charts.slice(0, 6).map((c) => (
           <ChartTile key={c.id} data={c} onRefresh={refreshOne} />
         ))}
       </SimpleGrid>

@@ -72,9 +72,9 @@ type SideBarProps = {
 const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: controlledOnOpen, onClose: controlledOnClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const bg = useColorModeValue("white", "gray.800");
-  const activeBg = useColorModeValue("purple.50", "purple.700");
-  const activeColor = useColorModeValue("purple.700", "purple.200");
+  const bg = useColorModeValue("orange.50", "purple.800");  // Light mode orange, dark mode purple
+  const activeBg = useColorModeValue("orange.200", "purple.700");  // Light mode orange, dark mode purple
+  const activeColor = useColorModeValue("orange.700", "purple.200");  // Light mode orange, dark mode purple
   const textColor = useColorModeValue("gray.700", "gray.200");
 
   // use controlled props or fallback to internal disclosure
@@ -107,13 +107,7 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
 
   const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => (
     <VStack align="stretch" spacing={6} h="100%">
-      <HStack spacing={3} align="center">
-        <Avatar size="sm" name="Flowops" bg="purple.500" color="white" />
-        <Text fontWeight="600" color={textColor}>
-          Flowops
-        </Text>
-      </HStack>
-
+      {/* Removed the Flowops logo section */}
       <VStack spacing={1} align="stretch">
         {navItems.map((item) =>
           item.children ? (
@@ -124,7 +118,7 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
                 borderRadius="md"
                 cursor="pointer"
                 onClick={() => setOpen((s) => ({ ...s, [item.label]: !s[item.label] }))}
-                _hover={{ bg: useColorModeValue("gray.50", "gray.700") }}
+                _hover={{ bg: useColorModeValue("orange.200", "purple.700") }}  // Light mode orange, dark mode purple
                 align="center"
                 justify="space-between"
               >
@@ -167,7 +161,7 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
                           fontWeight={500}
                           color={isActive ? activeColor : textColor}
                           bg={isActive ? activeBg : undefined}
-                          _hover={{ textDecoration: "none", bg: useColorModeValue("gray.50", "gray.700") }}
+                          _hover={{ textDecoration: "none", bg: useColorModeValue("orange.200", "purple.700") }}  // Light mode orange, dark mode purple
                         >
                           <Text fontSize="sm">{child.label}</Text>
                         </Link>
@@ -195,7 +189,7 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
                   fontWeight={500}
                   color={isActive ? activeColor : textColor}
                   bg={isActive ? activeBg : undefined}
-                  _hover={{ textDecoration: "none", bg: useColorModeValue("gray.50", "gray.700") }}
+                  _hover={{ textDecoration: "none", bg: useColorModeValue("orange.200", "purple.700") }}  // Light mode orange, dark mode purple
                 >
                   <Icon as={item.icon} boxSize={5} mr={3} />
                   <Text fontSize="sm">{item.label}</Text>
@@ -241,7 +235,7 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
         display={{ base: "none", md: "block" }}
         bg={bg}
         borderRight="1px solid"
-        borderColor={useColorModeValue("gray.100", "gray.700")}
+        borderColor={useColorModeValue("orange.200", "purple.700")}  // Light mode orange, dark mode purple
         minH="100vh"
         p={4}
       >

@@ -7,17 +7,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String  @id @default(cuid())
-  firstName String?
-  lastName  String?
-  email     String  @unique
-  password  String
-  createdAt DateTime @default(now())
+model contact {
+  id               String    @id
+  type             String?
+  existingContacts String?
+  firstName        String?
+  lastName         String?
+  suffix           String?
+  title            String?
+  status           String?   @default("Active")
+  goesBy           String?
+  pronouns         String?
+  emailAddress     String?
+  emails           Json?
+  officeNumber     String?
+  countryCode      String?
+  cellNumber       String?
+  addressLines     Json?
+  addressLine2     String?
+  city             String?
+  state            String?
+  zip              String?
+  dateOfBirth      DateTime?
+  workAnniversary  DateTime?
+  maritalStatus    String?
+  spouseName       String?
+  childrensNames   Json?
+  college          String?
+  degree           String?
+  priorEmployer    String?
+  priorEmployers   Json?
+  endDate          DateTime?
+  notes            String?
+  sportsTeam       String?
+  favorites        String?
+  group            String?
+  report           String?
+  createdAt        DateTime  @default(now())
 }
 
-model FormSubmission {
-  id               String           @id @default(cuid())
+model role {
+  id          String     @id
+  name        String     @unique(map: "Role_name_key")
+  description String?
+  createdAt   DateTime   @default(now())
+  userrole    userrole[]
+}
+
+model submissionfile {
+  id                String            @id
+  originalName      String
+  filename          String
+  path              String
+  size              Int
+  createdAt         DateTime          @default(now())
+  submissionId      String
+  userregisteration userregisteration @relation(fields: [submissionId], references: [id], map: "SubmissionFile_submissionId_fkey")
+
+  @@index([submissionId], map: "SubmissionFile_submissionId_fkey")
+}
+
+model userregisteration {
+  id               String           @id
   type             String?
   existingContacts String?
   firstName        String?
@@ -28,17 +79,28 @@ model FormSubmission {
   role             String?
   userGroup        String           @default("None Selected")
   createdAt        DateTime         @default(now())
-  files            SubmissionFile[]
+  submissionfile   submissionfile[]
 }
 
-model SubmissionFile {
-  id           String   @id @default(cuid())
-  originalName String
-  filename     String
-  path         String
-  size         Int
-  createdAt    DateTime @default(now())
+model userrole {
+  id         String     @id
+  userId     String
+  roleId     String
+  role       role       @relation(fields: [roleId], references: [id], onDelete: Cascade, map: "UserRole_roleId_fkey")
+  usersignup usersignup @relation(fields: [userId], references: [id], onDelete: Cascade, map: "UserRole_userId_fkey")
 
-  submission   FormSubmission @relation(fields: [submissionId], references: [id])
-  submissionId String
+  @@unique([userId, roleId], map: "UserRole_userId_roleId_key")
+  @@index([roleId], map: "UserRole_roleId_fkey")
+}
+
+model usersignup {
+  id         String     @id
+  firstName  String?
+  lastName   String?
+  email      String     @unique(map: "UserSignup_email_key")
+  password   String
+  ipAddress  String?
+  macAddress String?
+  createdAt  DateTime   @default(now())
+  userrole   userrole[]
 }

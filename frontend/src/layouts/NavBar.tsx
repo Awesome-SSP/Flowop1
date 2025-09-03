@@ -33,14 +33,14 @@ type UserInfo = {
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
   const { colorMode, toggleColorMode } = useColorMode();  // Added for theme toggle
-  // Updated colors for subtle blue tint (Option 2)
-  const bg = useColorModeValue("purple.100", "blue.900");  // Subtle blue background
-  const border = useColorModeValue("blue.100", "blue.700");  // Matching blue border
-  const textColor = useColorModeValue("gray.700", "gray.200");  // High-contrast text
-  // Brand gradient remains purple for consistency
+  // Updated colors to match SideBar's toggle: orange in light mode, purple in dark mode
+  const bg = useColorModeValue("orange.100", "purple.800");
+  const border = useColorModeValue("orange.100", "purple.700");
+  const textColor = useColorModeValue("gray.700", "gray.200");
+  // Brand gradient: orange in light mode, purple in dark mode
   const brandGradient = useColorModeValue(
-    "linear(to-r, purple.600, purple.800)",
-    "linear(to-r, purple.500, purple.700)"
+    "linear(to-r, orange.400, orange.600)",
+    "linear(to-r, purple.300, purple.500)"
   );
 
   const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -99,8 +99,8 @@ const NavBar: React.FC = () => {
       w="full"
       px={{ base: 3, md: 6 }}
       py={3}
-      bg={bg}  // Updated background
-      borderColor={border}  // Updated border
+      bg={bg}
+      borderColor={border}
       position="sticky"
       top="0"
       zIndex={40}
@@ -110,7 +110,7 @@ const NavBar: React.FC = () => {
       <HStack spacing={3} align="center">
         <Box>
           <HStack spacing={2} align="center">
-            <Icon as={FiTrendingUp} boxSize={5} color="purple.600" />
+            <Icon as={FiTrendingUp} boxSize={5} color={useColorModeValue("orange.500", "purple.500")} />  // Orange in light, purple in dark
             <Heading
               size={{ base: "sm", md: "lg" }}
               lineHeight="1"
@@ -177,10 +177,10 @@ const NavBar: React.FC = () => {
         {/* admin menu with dynamic user info */}
         <Menu>
           <MenuButton>
-            <HStack spacing={2} cursor="pointer" px={2} py={1} borderRadius="md" _hover={{ bg: useColorModeValue("blue.100", "blue.800") }}>  {/* Updated hover bg to match */}
-              <Avatar size="sm" name={fullName} />
+            <HStack spacing={2} cursor="pointer" px={2} py={1} borderRadius="md" _hover={{ bg: useColorModeValue("orange.100", "purple.700") }}>
+              <Avatar size="sm" name={fullName} bg={useColorModeValue("orange.500", "purple.500")} color="white" />  // Added complementary bg: orange in light, purple in dark
               <Box display={{ base: "none", md: "block" }}>
-                <Text fontSize="sm" fontWeight="600" color={textColor}>  {/* Updated text color */}
+                <Text fontSize="sm" fontWeight="600" color={textColor}>
                   {fullName}
                 </Text>
                 <Text fontSize="xs" color="gray.500">
