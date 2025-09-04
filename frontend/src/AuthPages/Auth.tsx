@@ -165,25 +165,34 @@ export default function Auth() {
       const res = await fetch(`${API}/api/auth/validate-role`, {
         method: 'POST',
         headers: {
-          'Content-Type': '/json',
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ role: selected.name }),
+        body: JSON.stringify({ role: selected.name }), // adjust payload if your backend expects { roleId }
       });
-      const body = await res.json().catch(() => ({}));
+
+      const ct = res.headers.get('content-type') || '';
+      const body = ct.includes('application/json') ? await res.json().catch(() => ({})) : await res.text().catch(() => '');
+
       if (!res.ok) {
-        setError(body.error || 'Role validation failed');
+        // surface useful message
+        const msg = (body && (body.error || body.message)) || (typeof body === 'string' ? body : `Request failed: ${res.status}`);
         if (res.status === 401) clearAuth();
+        console.error('validate-role error', res.status, body);
+        setError(msg);
         return;
       }
-      if (!body.hasRole) {
-        setError('You do not have the selected role');
+
+      // expect { hasRole: true }
+      if (!body || body.hasRole !== true) {
+        setError(body?.hasRole === false ? 'You do not have the selected role' : 'Unexpected server response');
         return;
       }
 
       localStorage.setItem('selectedRole', JSON.stringify(selected));
       navigate('/dashboard');
     } catch (err: any) {
+      console.error('validate-role request failed', err);
       setError(err?.message || 'Network error');
     }
   }
