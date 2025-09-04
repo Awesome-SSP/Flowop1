@@ -5,10 +5,6 @@ import {
   HStack,
   Text,
   Button,
-  SimpleGrid,
-  Stat,
-  StatLabel,
-  StatNumber,
   useColorModeValue,
   IconButton,
   Select,
@@ -33,38 +29,38 @@ type ReportData = {
 
 // Mock data - replace with API call in future
 const mockReports: ReportData[] = [
-  { 
-    id: "r1", 
-    title: "User Activity", 
-    value: "1.2k", 
-    description: "Total active users this month", 
+  {
+    id: "r1",
+    title: "User Activity",
+    value: "1.2k",
+    description: "Total active users this month",
     lastUpdated: "2 hours ago",
     icon: FiBarChart2,
     color: "#2563EB"
   },
-  { 
-    id: "r2", 
-    title: "Revenue", 
-    value: "$45.6k", 
-    description: "Monthly revenue generated", 
+  {
+    id: "r2",
+    title: "Revenue",
+    value: "$45.6k",
+    description: "Monthly revenue generated",
     lastUpdated: "1 day ago",
     icon: FiDollarSign,
     color: "#10B981"
   },
-  { 
-    id: "r3", 
-    title: "System Errors", 
-    value: "12", 
-    description: "System errors reported", 
+  {
+    id: "r3",
+    title: "System Errors",
+    value: "12",
+    description: "System errors reported",
     lastUpdated: "30 minutes ago",
     icon: FiAlertTriangle,
     color: "#EF4444"
   },
-  { 
-    id: "r4", 
-    title: "Downloads", 
-    value: "3.4k", 
-    description: "Files downloaded", 
+  {
+    id: "r4",
+    title: "Downloads",
+    value: "3.4k",
+    description: "Files downloaded",
     lastUpdated: "5 hours ago",
     icon: FiDownload,
     color: "#F59E0B"
@@ -102,12 +98,12 @@ const Reports: React.FC = () => {
   );
 
   return (
-    <Box h="100%" display="flex" flexDirection="column" p={6}>
+    <Box h="100%" display="flex" flexDirection="column" p={6} overflowY="auto">
       {/* Fixed Header */}
       <Box mb={6} flexShrink={0}>
-        <Heading 
-          size="xl" 
-          color={textColor} 
+        <Heading
+          size="xl"
+          color={textColor}
           mb={2}
           bgGradient="linear(to-r, #2563EB, #10B981)"
           bgClip="text"
@@ -147,8 +143,8 @@ const Reports: React.FC = () => {
                   bg: useColorModeValue("gray.100", "gray.700")
                 }}
               />
-              <Button 
-                leftIcon={<DownloadIcon />} 
+              <Button
+                leftIcon={<DownloadIcon />}
                 bg="linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)"
                 color="white"
                 borderRadius="xl"
@@ -179,10 +175,10 @@ const Reports: React.FC = () => {
                 }}
               />
             </InputGroup>
-            <Select 
-              placeholder="Filter reports" 
-              value={filter} 
-              onChange={(e) => setFilter(e.target.value)} 
+            <Select
+              placeholder="Filter reports"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
               maxW="200px"
               borderRadius="xl"
               borderColor={useColorModeValue("gray.300", "gray.600")}
@@ -249,7 +245,7 @@ const Reports: React.FC = () => {
                     }}
                   />
                 </HStack>
-                
+
                 <Box mt="auto">
                   <Text fontSize="xs" color={muted} noOfLines={2} mb={2}>
                     {report.description}
@@ -286,7 +282,7 @@ const Reports: React.FC = () => {
             Visual representation of your business metrics
           </Text>
         </Box>
-        
+
         <Box flex="1" p={6} display="flex" alignItems="center" justifyContent="center">
           <Box textAlign="center">
             <Text fontSize="6xl" opacity="0.3" mb={4}>📊</Text>

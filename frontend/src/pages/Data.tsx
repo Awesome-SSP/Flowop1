@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Heading,
-  VStack,
   HStack,
   Text,
-  Button,
   Table,
   Thead,
   Tbody,
@@ -24,6 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { RepeatIcon, AddIcon, EditIcon, DeleteIcon, SearchIcon } from "@chakra-ui/icons";
 import { FiDatabase, FiFileText, FiActivity, FiClock } from "react-icons/fi";
+import { PremiumButton } from "../components/ui/PremiumButton";
 
 type DataEntry = {
   id: string;
@@ -93,12 +92,12 @@ const Data: React.FC = () => {
   const inactiveEntries = data.filter(d => d.status === "Inactive").length;
 
   return (
-    <Box h="100%" display="flex" flexDirection="column" p={6}>
+    <Box h="100%" display="flex" flexDirection="column" p={6} overflowY="auto">
       {/* Fixed Header Section */}
       <Box mb={6} flexShrink={0}>
-        <Heading 
-          size="xl" 
-          color={textColor} 
+        <Heading
+          size="xl"
+          color={textColor}
           mb={2}
           bgGradient="linear(to-r, #2563EB, #10B981)"
           bgClip="text"
@@ -276,19 +275,15 @@ const Data: React.FC = () => {
                   bg: useColorModeValue("gray.100", "gray.700")
                 }}
               />
-              <Button 
-                leftIcon={<AddIcon />} 
-                bg="linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)"
-                color="white"
+              <PremiumButton
+                leftIcon={<AddIcon />}
+                variant="primary"
                 onClick={addData}
                 borderRadius="xl"
                 px={6}
-                _hover={{
-                  boxShadow: "0 8px 25px rgba(37, 99, 235, 0.25)"
-                }}
               >
                 Add Data
-              </Button>
+              </PremiumButton>
             </HStack>
           </HStack>
 
@@ -310,10 +305,10 @@ const Data: React.FC = () => {
                 }}
               />
             </InputGroup>
-            <Select 
-              placeholder="Filter by status" 
-              value={filter} 
-              onChange={(e) => setFilter(e.target.value)} 
+            <Select
+              placeholder="Filter by status"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
               maxW="200px"
               borderRadius="xl"
               borderColor={useColorModeValue("gray.300", "gray.600")}
@@ -331,8 +326,8 @@ const Data: React.FC = () => {
         </Box>
 
         {/* Scrollable Table Content */}
-        <Box 
-          flex="1" 
+        <Box
+          flex="1"
           overflow="auto"
           minH="0"
         >
@@ -348,8 +343,8 @@ const Data: React.FC = () => {
             </Thead>
             <Tbody>
               {filteredData.map((entry) => (
-                <Tr 
-                  key={entry.id} 
+                <Tr
+                  key={entry.id}
                   _hover={{
                     bg: useColorModeValue("blue.50", "blue.900")
                   }}
@@ -361,8 +356,8 @@ const Data: React.FC = () => {
                     </Badge>
                   </Td>
                   <Td>
-                    <Badge 
-                      colorScheme={getStatusColor(entry.status)} 
+                    <Badge
+                      colorScheme={getStatusColor(entry.status)}
                       borderRadius="lg"
                       px={3}
                       py={1}

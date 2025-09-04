@@ -288,17 +288,6 @@ export default function Auth() {
     marginTop: 12,
   };
 
-  const ghostBtn: React.CSSProperties = {
-    flex: 1,
-    padding: '12px 14px',
-    borderRadius: 10,
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'transparent',
-    color: 'rgba(255,255,255,0.95)',
-    cursor: 'pointer',
-    fontWeight: 600,
-  };
-
   // smaller logout button variant
   const logoutBtn: React.CSSProperties = {
     padding: '8px 10px',

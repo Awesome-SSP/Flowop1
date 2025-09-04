@@ -1,52 +1,159 @@
-/* Gorgeous Modern UI Base Styles */
+/* Premium Modern UI Base Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
 html,
 body {
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif;
-    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
-    color: #22223b;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%);
+    color: #1F2937;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+    line-height: 1.6;
     background-attachment: fixed;
 }
 
+/* Premium Animations */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(-20px) rotate(2deg);
+    }
+
+    66% {
+        transform: translateY(-10px) rotate(-1deg);
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+    }
+}
+
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Smooth Transitions */
+* {
+    transition: box-shadow 0.3s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+}
+
+/* Selection Styles */
+::selection {
+    background: rgba(99, 102, 241, 0.3);
+    color: #1F2937;
+}
+
+::-moz-selection {
+    background: rgba(99, 102, 241, 0.3);
+    color: #1F2937;
+}
+
+/* Premium Focus Styles */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #6366F1;
+    outline-offset: 2px;
+}
+
+/* Link Styles */
 a {
-    color: #3b82f6;
+    color: #6366F1;
     text-decoration: none;
-    transition: color 0.2s;
+    transition: all 0.2s ease;
 }
 
 a:hover {
-    color: #6366f1;
+    color: #4F46E5;
+    text-decoration: underline;
+    text-decoration-color: rgba(99, 102, 241, 0.3);
 }
 
-button,
-input,
-select,
-textarea {
-    font-family: inherit;
-    border-radius: 8px;
-    border: none;
-    padding: 0.6em 1.2em;
-    background: #f1f5f9;
-    box-shadow: 0 2px 8px rgba(60, 60, 100, 0.08);
-    transition: box-shadow 0.2s, background 0.2s;
+/* Loading Animation */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
-button:hover,
-input:focus,
-select:focus,
-textarea:focus {
-    background: #e0e7ff;
-    box-shadow: 0 4px 16px rgba(60, 60, 100, 0.12);
+.loading-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    animation: shimmer 1.5s infinite;
 }
 
 header,
@@ -98,7 +205,11 @@ footer {
 }
 
 /* Enhanced modern interactions - STATIC VERSION */
-button, input, select, textarea, .card-hover {
+button,
+input,
+select,
+textarea,
+.card-hover {
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 

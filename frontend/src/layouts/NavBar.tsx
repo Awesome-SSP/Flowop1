@@ -118,6 +118,7 @@ const NavBar: React.FC<NavBarProps> = () => {
       zIndex={50}
       boxShadow="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
       backdropFilter="blur(8px)"
+      overflowY="auto"
     >
       {/* Left: Company Logo + Name */}
       <HStack spacing={3} align="center" minW="200px">

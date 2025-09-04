@@ -243,7 +243,7 @@ const SideBar: React.FC<SideBarProps> = () => {
         bg={bg}
         position="relative"
         boxShadow="0 4px 12px rgba(0, 0, 0, 0.05)"
-        overflow="auto" // Allow scrolling within sidebar if needed
+        overflowY="auto" // Allow scrolling within sidebar if needed
       >
         <SidebarContent />
       </Box>

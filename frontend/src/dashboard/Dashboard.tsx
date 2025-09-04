@@ -1,19 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
-  Button,
   Heading,
   SimpleGrid,
   Text,
   VStack,
   HStack,
-  IconButton,
   useColorModeValue,
   Flex,
   Tooltip,
 } from "@chakra-ui/react";
 import { RepeatIcon } from "@chakra-ui/icons";
 import { FiTrendingUp, FiUsers, FiFileText, FiDollarSign, FiTarget } from "react-icons/fi";
+import { PremiumCard } from "../components/ui/PremiumCard";
+import { PremiumButton } from "../components/ui/PremiumButton";
 
 type ChartData = {
   id: string;
@@ -106,42 +106,31 @@ const Histogram: React.FC<{
   );
 };
 
-// Dashboard card component
+// Premium Dashboard card component
 const DashboardCard: React.FC<{ data: ChartData }> = ({ data }) => {
-  const cardBg = useColorModeValue("rgba(255,255,255,0.9)", "rgba(26,26,46,0.9)");
   const textColor = useColorModeValue("#1F2937", "#F9FAFB");
   const mutedColor = useColorModeValue("#6B7280", "#9CA3AF");
-  const borderColor = useColorModeValue("rgba(255,255,255,0.3)", "rgba(255,255,255,0.1)");
 
   return (
-    <Box
-      bg={cardBg}
-      borderRadius="2xl"
-      border="1px solid"
-      borderColor={borderColor}
-      p={6}
-      boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-      _hover={{
-        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-      }}
-      backdropFilter="blur(8px)"
-      position="relative"
-      overflow="hidden"
-      h="220px" // Fixed height
+    <PremiumCard
+      h="220px"
       display="flex"
       flexDirection="column"
+      position="relative"
+      overflow="hidden"
     >
+      {/* Gradient accent */}
       <Box
         position="absolute"
         top="0"
         right="0"
         w="40%"
         h="100%"
-        bgGradient={`linear(45deg, transparent 0%, ${data.color}10 100%)`}
+        bgGradient={`linear(45deg, transparent 0%, ${data.color}15 100%)`}
         borderRadius="0 2xl 2xl 0"
       />
 
-      <VStack align="stretch" spacing={4} flex="1">
+      <VStack align="stretch" spacing={4} flex="1" position="relative" zIndex={2}>
         <HStack justify="space-between" align="flex-start">
           <VStack align="flex-start" spacing={1}>
             <HStack spacing={2} align="center">
@@ -184,7 +173,7 @@ const DashboardCard: React.FC<{ data: ChartData }> = ({ data }) => {
           />
         </Box>
       </VStack>
-    </Box>
+    </PremiumCard>
   );
 };
 
@@ -203,7 +192,7 @@ const Dashboard: React.FC = () => {
   const refreshLabel = useMemo(() => {
     const now = new Date();
     const diffSeconds = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
-    
+
     if (diffSeconds < 60) return "Just updated";
     if (diffSeconds < 3600) return `Updated ${Math.floor(diffSeconds / 60)}m ago`;
     return `Updated ${Math.floor(diffSeconds / 3600)}h ago`;
@@ -217,7 +206,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   return (
-    <Box h="100%" display="flex" flexDirection="column" p={6}>
+    <Box h="100%" display="flex" flexDirection="column" p={6} overflowY="auto">
       {/* Fixed Header */}
       <Box mb={6} flexShrink={0}>
         <Flex justify="space-between" align="center">
@@ -231,20 +220,15 @@ const Dashboard: React.FC = () => {
           </Box>
 
           <VStack align="flex-end" spacing={2}>
-            <Button
+            <PremiumButton
               leftIcon={<RepeatIcon />}
               onClick={refreshAll}
-              bg="linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)"
-              color="white"
-              variant="solid"
+              variant="primary"
               borderRadius="xl"
               fontWeight="600"
-              _hover={{
-                boxShadow: "0 8px 25px rgba(37, 99, 235, 0.25)"
-              }}
             >
               Refresh All
-            </Button>
+            </PremiumButton>
             <Text fontSize="xs" color={mutedColor}>
               {refreshLabel}
             </Text>
