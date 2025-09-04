@@ -1,9 +1,13 @@
-import React from 'react'
+import React from "react";
+import AdminPageTemplate from "../../components/AdminPageTemplate";
 
-const MyDownloads = () => {
+const MyDownloads: React.FC = () => {
   return (
-    <div>MyDownloads</div>
-  )
-}
+    <AdminPageTemplate
+      title="My Downloads"
+      description="View and manage your downloaded files and documents"
+    />
+  );
+};
 
-export default MyDownloads
+export default MyDownloads;

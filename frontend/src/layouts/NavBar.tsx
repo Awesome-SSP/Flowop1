@@ -35,11 +35,15 @@ type UserInfo = {
   role?: string;
 };
 
-const NavBar: React.FC = () => {
+interface NavBarProps {
+  // No mobile menu props needed - static layout only
+}
+
+const NavBar: React.FC<NavBarProps> = () => {
   const navigate = useNavigate();
   const { colorMode, toggleColorMode } = useColorMode();
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Enterprise-style colors: Primary blue (#2563EB), neutral grays, accents green/amber
   const bg = useColorModeValue("white", "#1F2937");
   const borderColor = useColorModeValue("#E5E7EB", "#374151");
@@ -85,7 +89,7 @@ const NavBar: React.FC = () => {
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
-    } catch {}
+    } catch { }
     navigate("/", { replace: true });
   };
 
@@ -241,19 +245,19 @@ const NavBar: React.FC = () => {
         {/* User Menu */}
         <Menu>
           <MenuButton>
-            <HStack 
-              spacing={3} 
-              cursor="pointer" 
-              px={3} 
-              py={2} 
-              borderRadius="xl" 
+            <HStack
+              spacing={3}
+              cursor="pointer"
+              px={3}
+              py={2}
+              borderRadius="xl"
               _hover={{ bg: useColorModeValue("#F3F4F6", "#374151") }}
               transition="all 0.2s"
             >
-              <Avatar 
-                size="sm" 
-                name={fullName} 
-                bg={brandColor} 
+              <Avatar
+                size="sm"
+                name={fullName}
+                bg={brandColor}
                 color="white"
                 fontWeight="600"
               />

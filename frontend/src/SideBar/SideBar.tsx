@@ -12,25 +12,15 @@ import {
   useColorModeValue,
   Collapse,
   IconButton,
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerBody,
-  DrawerCloseButton,
-  useDisclosure,
 } from "@chakra-ui/react";
 import {
   FiHome,
   FiBarChart2,
-  FiLayers,
   FiSettings,
   FiLogOut,
-  FiUpload,
   FiUsers,
   FiChevronDown,
   FiChevronRight,
-  FiMenu,
-  FiDownload,
   FiFileText,
   FiTrendingUp,
 } from "react-icons/fi";
@@ -66,20 +56,13 @@ const navItems: NavItem[] = [
   { label: "Settings", to: "/settings", icon: FiSettings },
 ];
 
-type SideBarProps = {
-  isOpen?: boolean;
-  onOpen?: () => void;
-  onClose?: () => void;
-};
+// Simplified props - no mobile menu needed
+type SideBarProps = {};
 
-const SideBar: React.FC<SideBarProps> = ({ 
-  isOpen: controlledIsOpen, 
-  onOpen: controlledOnOpen, 
-  onClose: controlledOnClose 
-}) => {
+const SideBar: React.FC<SideBarProps> = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Enterprise colors: Primary blue (#2563EB), neutral grays, accents green/amber
   const bg = useColorModeValue("white", "#1F2937");
   const activeBg = useColorModeValue("#EBF8FF", "#1E40AF");
@@ -87,13 +70,6 @@ const SideBar: React.FC<SideBarProps> = ({
   const textColor = useColorModeValue("#374151", "#F9FAFB");
   const borderColor = useColorModeValue("#E5E7EB", "#374151");
   const hoverBg = useColorModeValue("#F3F4F6", "#374151");
-
-  // use controlled props or fallback to internal disclosure
-  const internal = useDisclosure();
-  const isControlled = typeof controlledIsOpen !== "undefined" && controlledOnOpen && controlledOnClose;
-  const isOpen = isControlled ? controlledIsOpen! : internal.isOpen;
-  const onOpen = isControlled ? controlledOnOpen! : internal.onOpen;
-  const onClose = isControlled ? controlledOnClose! : internal.onClose;
 
   const [open, setOpen] = useState<Record<string, boolean>>({});
 
@@ -111,12 +87,11 @@ const SideBar: React.FC<SideBarProps> = ({
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
-    } catch {}
-    onClose();
+    } catch { }
     navigate("/", { replace: true });
   };
 
-  const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => (
+  const SidebarContent = () => (
     <VStack align="stretch" spacing={6} h="100%" px={4} py={6}>
       {/* Logo Section */}
       <Box mb={6}>
@@ -183,7 +158,6 @@ const SideBar: React.FC<SideBarProps> = ({
                     <NavLink
                       key={child.to}
                       to={child.to}
-                      onClick={() => onItemClick?.()}
                     >
                       {({ isActive }) => (
                         <Link
@@ -195,9 +169,9 @@ const SideBar: React.FC<SideBarProps> = ({
                           fontWeight={500}
                           color={isActive ? activeColor : textColor}
                           bg={isActive ? activeBg : "transparent"}
-                          _hover={{ 
-                            textDecoration: "none", 
-                            bg: isActive ? activeBg : hoverBg 
+                          _hover={{
+                            textDecoration: "none",
+                            bg: isActive ? activeBg : hoverBg
                           }}
                           transition="all 0.2s"
                         >
@@ -213,7 +187,6 @@ const SideBar: React.FC<SideBarProps> = ({
             <NavLink
               key={item.to ?? item.label}
               to={item.to ?? "#"}
-              onClick={() => onItemClick?.()}
             >
               {({ isActive }) => (
                 <Link
@@ -225,9 +198,9 @@ const SideBar: React.FC<SideBarProps> = ({
                   fontWeight={600}
                   color={isActive ? activeColor : textColor}
                   bg={isActive ? activeBg : "transparent"}
-                  _hover={{ 
-                    textDecoration: "none", 
-                    bg: isActive ? activeBg : hoverBg 
+                  _hover={{
+                    textDecoration: "none",
+                    bg: isActive ? activeBg : hoverBg
                   }}
                   transition="all 0.2s"
                 >
@@ -262,48 +235,18 @@ const SideBar: React.FC<SideBarProps> = ({
 
   return (
     <>
-      {/* Mobile hamburger button */}
-      <IconButton
-        aria-label="Open menu"
-        icon={<FiMenu />}
-        position="fixed"
-        top={4}
-        left={4}
-        zIndex={60}
-        display={{ base: "inline-flex", md: "none" }}
-        onClick={onOpen}
-        bg={bg}
-        borderRadius="xl"
-        boxShadow="0 4px 12px rgba(0, 0, 0, 0.1)"
-        _hover={{ bg: hoverBg }}
-      />
-
-      {/* Desktop sidebar */}
+      {/* Fixed Desktop sidebar - Always visible */}
       <Box
         as="aside"
-        w={{ base: "0", md: "280px" }}
-        display={{ base: "none", md: "block" }}
+        w="100%" // Take full width of container (280px from MainLayout)
+        h="100%" // Full height
         bg={bg}
-        borderRight="1px solid"
-        borderColor={borderColor}
-        minH="100vh"
-        position="sticky"
-        top="0"
+        position="relative"
         boxShadow="0 4px 12px rgba(0, 0, 0, 0.05)"
+        overflow="auto" // Allow scrolling within sidebar if needed
       >
         <SidebarContent />
       </Box>
-
-      {/* Mobile drawer */}
-      <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="sm">
-        <DrawerOverlay bg="blackAlpha.600" />
-        <DrawerContent borderRadius="0 2xl 2xl 0" bg={bg}>
-          <DrawerCloseButton />
-          <DrawerBody p={0}>
-            <SidebarContent onItemClick={onClose} />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
     </>
   );
 };
