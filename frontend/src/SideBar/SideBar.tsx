@@ -72,7 +72,6 @@ type SideBarProps = {
 const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: controlledOnOpen, onClose: controlledOnClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const bg = useColorModeValue("orange.50", "purple.800");  // Light mode orange, dark mode purple
   const activeBg = useColorModeValue("orange.200", "purple.700");  // Light mode orange, dark mode purple
   const activeColor = useColorModeValue("orange.700", "purple.200");  // Light mode orange, dark mode purple
   const textColor = useColorModeValue("gray.700", "gray.200");
@@ -213,41 +212,77 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
 
   return (
     <>
-      {/* mobile hamburger - fixed position, adjusted for better alignment */}
+      {/* mobile hamburger - fixed position with glassmorphism */}
       <IconButton
         aria-label="Open menu"
         icon={<FiMenu />}
         position="fixed"
-        top={0}
-        left={0}
+        top={4}
+        left={4}
         zIndex={60}
         display={{ base: "inline-flex", md: "none" }}
         onClick={onOpen}
-        bg="purple.100"  // Changed to purple.100 for both light and dark modes
-        borderRadius="md"
-        _hover={{ bg: "purple.200" }}  // Updated hover to a slightly darker purple
+        bg={useColorModeValue("rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 0.1)")}
+        borderRadius="xl"
+        backdropFilter="blur(20px)"
+        border="1px solid rgba(255, 255, 255, 0.2)"
+        boxShadow="0 8px 32px rgba(31, 38, 135, 0.37)"
+        _hover={{ 
+          bg: useColorModeValue("rgba(255, 255, 255, 0.5)", "rgba(255, 255, 255, 0.2)"),
+          transform: "translateY(-2px)"
+        }}
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       />
 
-      {/* desktop sidebar */}
+      {/* desktop sidebar with heroic glassmorphism */}
       <Box
         as="aside"
-        w={{ base: "0", md: "220px" }}
+        w={{ base: "0", md: "280px" }}
         display={{ base: "none", md: "block" }}
-        bg={bg}
-        borderRight="1px solid"
-        borderColor={useColorModeValue("orange.200", "purple.700")}  // Light mode orange, dark mode purple
-        minH="100vh"
-        p={4}
+        bg={useColorModeValue(
+          "rgba(255, 255, 255, 0.25)", 
+          "rgba(255, 255, 255, 0.08)"
+        )}
+        border={useColorModeValue(
+          "1px solid rgba(255, 255, 255, 0.4)",
+          "1px solid rgba(255, 255, 255, 0.2)"
+        )}
+        borderRadius="2xl"
+        minH="95vh"
+        m={4}
+        p={6}
+        boxShadow={useColorModeValue(
+          "0 8px 32px rgba(31, 38, 135, 0.37), inset 0 1px 0 rgba(255, 255, 255, 0.5)",
+          "0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)"
+        )}
+        style={{ 
+          backdropFilter: "blur(20px) saturate(180%)",
+          background: useColorModeValue(
+            "linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 100%)",
+            "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)"
+          ),
+          transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+        _hover={{
+          boxShadow: useColorModeValue(
+            "0 20px 60px rgba(31, 38, 135, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6)",
+            "0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2)"
+          ),
+        }}
       >
         <SidebarContent />
       </Box>
 
-      {/* mobile drawer */}
-      <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="xs">
-        <DrawerOverlay />
-        <DrawerContent>
+      {/* mobile drawer with glassmorphism */}
+      <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="sm">
+        <DrawerOverlay backdropFilter="blur(10px)" />
+        <DrawerContent
+          bg={useColorModeValue("rgba(255, 255, 255, 0.9)", "rgba(36, 39, 54, 0.9)")}
+          backdropFilter="blur(20px)"
+          border="1px solid rgba(255, 255, 255, 0.2)"
+        >
           <DrawerCloseButton />
-          <DrawerBody p={4}>
+          <DrawerBody p={6}>
             <SidebarContent onItemClick={onClose} />
           </DrawerBody>
         </DrawerContent>

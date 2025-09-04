@@ -90,18 +90,59 @@ const Histogram: React.FC<{
   );
 };
 
-/* Cleaner Chart Tile */
+/* Heroic Glassmorphism Chart Tile */
 const ChartTile: React.FC<{ data: ChartData; onRefresh?: (id: string) => void }> = ({ data, onRefresh }) => {
-  const bg = useColorModeValue("white", "gray.700");
   const muted = useColorModeValue("gray.500", "gray.300");
   return (
-    <Box bg={bg} borderRadius="lg" boxShadow="sm" p={5} minH="200px" display="flex" flexDirection="column">
-      <HStack mb={3} align="center">
+    <Box 
+      bg={useColorModeValue(
+        "rgba(255, 255, 255, 0.25)", 
+        "rgba(255, 255, 255, 0.08)"
+      )}
+      border={useColorModeValue(
+        "1px solid rgba(255, 255, 255, 0.4)",
+        "1px solid rgba(255, 255, 255, 0.2)"
+      )}
+      borderRadius="2xl" 
+      boxShadow={useColorModeValue(
+        "0 8px 32px rgba(31, 38, 135, 0.37), inset 0 1px 0 rgba(255, 255, 255, 0.5)",
+        "0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)"
+      )}
+      p={6} 
+      minH="220px" 
+      display="flex" 
+      flexDirection="column"
+      style={{ 
+        backdropFilter: "blur(20px) saturate(180%)",
+        background: useColorModeValue(
+          "linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 100%)",
+          "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)"
+        ),
+        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
+      _hover={{
+        boxShadow: useColorModeValue(
+          "0 20px 60px rgba(31, 38, 135, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6)",
+          "0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2)"
+        ),
+        transform: "translateY(-4px) scale(1.02)",
+      }}
+    >
+      <HStack mb={4} align="center">
         <Stat>
-          <StatLabel fontSize="sm" color={muted} fontWeight="500">
+          <StatLabel fontSize="sm" color={muted} fontWeight="600" letterSpacing="0.05em">
             {data.title}
           </StatLabel>
-          <StatNumber fontSize="2xl" color="gray.800" fontWeight="bold">
+          <StatNumber 
+            fontSize="3xl" 
+            color={useColorModeValue("gray.800", "white")} 
+            fontWeight="800"
+            bgGradient={useColorModeValue(
+              "linear(to-r, #667eea, #764ba2)",
+              "linear(to-r, #ffb300, #ff6b6b)"
+            )}
+            bgClip="text"
+          >
             {data.value}
           </StatNumber>
         </Stat>
@@ -112,18 +153,25 @@ const ChartTile: React.FC<{ data: ChartData; onRefresh?: (id: string) => void }>
           variant="ghost"
           icon={<RepeatIcon />}
           onClick={() => onRefresh?.(data.id)}
-          _hover={{ bg: useColorModeValue("gray.100", "gray.600") }}
+          bg={useColorModeValue("rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 0.1)")}
+          _hover={{ 
+            bg: useColorModeValue("rgba(255, 255, 255, 0.5)", "rgba(255, 255, 255, 0.2)"),
+            transform: "rotate(180deg)"
+          }}
+          borderRadius="xl"
+          backdropFilter="blur(10px)"
+          transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         />
       </HStack>
 
-      <Divider mb={3} />
+      <Divider mb={4} opacity={0.3} />
 
       <Box flex="1">
         <Histogram
           data={data.series.slice(-12)}
           labels={data.series.slice(-12).map((_, idx, arr) => `-${arr.length - idx}h`)}
-          color="#6B46C1"
-          height={100}
+          color={useColorModeValue("#667eea", "#ffb300")}
+          height={120}
         />
       </Box>
     </Box>
@@ -178,23 +226,115 @@ const Dashboard: React.FC = () => {
   const headingColor = useColorModeValue("gray.800", "gray.100"); // Add this for responsive text color
 
   return (
-    <VStack align="stretch" spacing={6} p={6}>
-      <HStack justify="space-between" align="center">
-        <Heading size="lg" color={headingColor}>  
-          Dashboard
-        </Heading>
-        <HStack spacing={3}>
-          <Text color="gray.600" fontSize="sm">
-            {info.total} metrics • updated: {info.updated}
-          </Text>
-          <Button size="sm" colorScheme="purple" onClick={refreshAll}>
-            Refresh All
-          </Button>
+    <VStack align="stretch" spacing={8} p={8}>
+      {/* Header with UGLY glassmorphism */}
+      <Box
+        bg="repeating-conic-gradient(from 0deg at 50% 50%, #ff1493 0deg, #9acd32 60deg, #ff4500 120deg, #8a2be2 180deg, #dc143c 240deg, #00ffff 300deg)"
+        border="8px ridge #ff00ff"
+        borderRadius="0px"
+        p={8}
+        boxShadow="inset 0 0 100px rgba(255, 0, 0, 0.9), 0 0 200px rgba(255, 255, 0, 0.8), 0 0 300px rgba(255, 0, 255, 0.7)"
+        style={{ 
+          backdropFilter: "blur(0px) saturate(1000%) contrast(500%)",
+          background: "repeating-linear-gradient(0deg, #ff0000 0%, #00ff00 10%, #0000ff 20%, #ffff00 30%, #ff00ff 40%, #00ffff 50%)",
+          fontFamily: "Impact, 'Arial Black', sans-serif",
+          textTransform: "uppercase",
+        }}
+        animation="header-nightmare 0.5s ease-in-out infinite alternate"
+        sx={{
+          '@keyframes header-nightmare': {
+            '0%': { 
+              backgroundColor: '#ff1493',
+              borderColor: '#00ff00',
+              filter: 'brightness(200%) contrast(300%)',
+            },
+            '100%': { 
+              backgroundColor: '#00ffff',
+              borderColor: '#ff0000',
+              filter: 'brightness(400%) contrast(500%)',
+            },
+          },
+        }}
+      >
+        <HStack justify="space-between" align="center">
+          <Heading 
+            size="2xl" 
+            color="#ff0000"
+            textShadow="0 0 20px #ff00ff, 0 0 40px #00ffff, 0 0 60px #ffff00"
+            fontWeight="900"
+            style={{
+              fontFamily: "Comic Sans MS, cursive",
+              textTransform: "uppercase",
+              letterSpacing: "0.3em",
+            }}
+            animation="title-chaos 0.2s linear infinite alternate"
+            sx={{
+              '@keyframes title-chaos': {
+                '0%': { 
+                  color: '#ff0000',
+                  textShadow: '0 0 20px #ff00ff',
+                  transform: 'scale(1) rotate(0deg)',
+                },
+                '50%': { 
+                  color: '#00ff00',
+                  textShadow: '0 0 20px #ffff00',
+                  transform: 'scale(1.1) rotate(2deg)',
+                },
+                '100%': { 
+                  color: '#0000ff',
+                  textShadow: '0 0 20px #ff0000',
+                  transform: 'scale(0.9) rotate(-2deg)',
+                },
+              },
+            }}
+          >  
+            💀 DASHBOARD OF DOOM 💀
+          </Heading>
+          <HStack spacing={4}>
+            <Text color="#ffff00" fontSize="lg" fontWeight="900" textShadow="0 0 10px #ff00ff" style={{ fontFamily: "Impact, sans-serif" }}>
+              🔥 {info.total} UGLY METRICS • DESTROYED: {info.updated} 🔥
+            </Text>
+            <Button 
+              size="lg" 
+              bg="repeating-linear-gradient(45deg, #ff0000, #ffff00 10px, #00ff00 20px, #00ffff 30px, #ff00ff 40px)"
+              color="#ffffff"
+              onClick={refreshAll}
+              borderRadius="0px"
+              border="5px solid #ff0000"
+              _hover={{ 
+                bg: "repeating-radial-gradient(circle, #ff1493, #9acd32 20px, #ff4500 40px)",
+                transform: "scale(1.2) rotate(10deg)",
+                boxShadow: "0 0 100px rgba(255, 0, 0, 1)"
+              }}
+              transition="all 0.1s linear"
+              fontWeight="900"
+              style={{
+                fontFamily: "Impact, sans-serif",
+                textTransform: "uppercase",
+                letterSpacing: "0.2em",
+              }}
+              animation="button-insanity 0.3s ease-in-out infinite alternate"
+              sx={{
+                '@keyframes button-insanity': {
+                  '0%': { 
+                    backgroundColor: '#ff0000',
+                    borderColor: '#00ff00',
+                  },
+                  '100%': { 
+                    backgroundColor: '#ff00ff',
+                    borderColor: '#ffff00',
+                  },
+                },
+              }}
+            >
+              🤢 REFRESH HELL 🤮
+            </Button>
+          </HStack>
         </HStack>
-      </HStack>
+      </Box>
 
-      {/* Reduced to 6 tiles for less clutter */}
-      <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} spacing={6}>
+      {/* Glassmorphism grid container */}
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} spacing={8}>
         {charts.slice(0, 6).map((c) => (
           <ChartTile key={c.id} data={c} onRefresh={refreshOne} />
         ))}
