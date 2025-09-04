@@ -53,15 +53,11 @@ export default function Auth() {
     setSelectedRoleId(null);
   };
 
-  // explicit logout handler that redirects to the login page
   function handleLogout() {
-    // clear auth state + storage
     clearAuth();
-    // reset form state and errors so login screen is fresh
     setEmail('');
     setPassword('');
     setError(null);
-    // navigate to login route and replace history entry
     navigate('/login', { replace: true });
   }
 
@@ -87,7 +83,6 @@ export default function Auth() {
         setLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadRoles(token: string) {
@@ -168,14 +163,13 @@ export default function Auth() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ role: selected.name }), // adjust payload if your backend expects { roleId }
+        body: JSON.stringify({ role: selected.name }),
       });
 
       const ct = res.headers.get('content-type') || '';
       const body = ct.includes('application/json') ? await res.json().catch(() => ({})) : await res.text().catch(() => '');
 
       if (!res.ok) {
-        // surface useful message
         const msg = (body && (body.error || body.message)) || (typeof body === 'string' ? body : `Request failed: ${res.status}`);
         if (res.status === 401) clearAuth();
         console.error('validate-role error', res.status, body);
@@ -183,7 +177,6 @@ export default function Auth() {
         return;
       }
 
-      // expect { hasRole: true }
       if (!body || body.hasRole !== true) {
         setError(body?.hasRole === false ? 'You do not have the selected role' : 'Unexpected server response');
         return;
@@ -197,7 +190,6 @@ export default function Auth() {
     }
   }
 
-  // Styles: full-bleed image, left pane 40% with simple bluish tint and high text contrast
   const pageStyle: React.CSSProperties = {
     minHeight: '100vh',
     width: '100vw',
@@ -208,20 +200,20 @@ export default function Auth() {
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
-    fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   };
 
   const leftStyle: React.CSSProperties = {
-    flex: '0 0 40%',
-    minWidth: 360,
+    flex: '0 0 35%',
+    minWidth: 400,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '64px 40px',
+    padding: '40px',
     boxSizing: 'border-box',
-    // subtle bluish panel that is merged (no card)
-    background: 'linear-gradient(90deg, rgba(8,40,80,0.78), rgba(25,90,150,0.58))',
-    color: '#ffffff',
+    background: 'rgba(255,255,255,0.92)',
+    borderRight: '1px solid rgba(226,232,240,0.5)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
   };
 
   const contentStyle: React.CSSProperties = {
@@ -229,204 +221,294 @@ export default function Auth() {
     maxWidth: 420,
   };
 
+  const brandStyle: React.CSSProperties = {
+    textAlign: 'center' as const,
+    marginBottom: '48px',
+  };
+
+  const logoStyle: React.CSSProperties = {
+    fontSize: '36px',
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: '12px',
+    letterSpacing: '-0.02em',
+    textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  };
+
   const headingStyle: React.CSSProperties = {
     margin: 0,
-    fontSize: 28,
+    fontSize: '28px',
     fontWeight: 700,
-    color: '#ffffff',
+    color: '#1e293b',
+    marginBottom: '8px',
   };
 
   const subStyle: React.CSSProperties = {
-    marginTop: 6,
-    marginBottom: 20,
-    color: 'rgba(255,255,255,0.88)',
-    fontSize: 14,
+    color: '#64748b',
+    fontSize: '16px',
+    fontWeight: 400,
+  };
+
+  const formStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '24px',
+  };
+
+  const fieldStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '8px',
   };
 
   const labelStyle: React.CSSProperties = {
-    display: 'block',
-    marginBottom: 6,
-    color: 'rgba(255,255,255,0.92)',
-    fontSize: 13,
+    color: '#374151',
+    fontSize: '14px',
     fontWeight: 600,
+    letterSpacing: '0.5px',
   };
 
   const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '10px 12px',
-    borderRadius: 8,
-    border: 'none',
-    boxSizing: 'border-box',
-    fontSize: 14,
+    padding: '16px',
+    borderRadius: '12px',
+    border: '2px solid #e2e8f0',
+    fontSize: '16px',
     outline: 'none',
-    background: 'rgba(255,255,255,0.95)',
-    color: '#04293a',
+    background: 'white',
+    color: '#1e293b',
+    transition: 'all 0.2s ease',
+    fontFamily: 'inherit',
   };
 
-  const btnPrimary: React.CSSProperties = {
-    padding: '12px 14px',
-    borderRadius: 10,
+  const inputFocusStyle = {
+    ...inputStyle,
+    borderColor: '#1e88e5',
+    boxShadow: '0 0 0 3px rgba(30, 136, 229, 0.1)',
+  };
+
+  const btnPrimaryStyle: React.CSSProperties = {
+    padding: '16px 24px',
+    borderRadius: '8px',
     border: 'none',
-    background: 'linear-gradient(90deg,#1e88e5,#0b54a9)',
-    color: '#fff',
+    background: '#1e88e5',
+    color: 'white',
+    fontSize: '16px',
     fontWeight: 700,
     cursor: 'pointer',
-    fontSize: 15,
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 8px rgba(30, 136, 229, 0.2)',
   };
 
-  // small variant for inline actions (e.g. Continue after role select)
-  const btnPrimarySmall: React.CSSProperties = {
-    ...btnPrimary,
-    width: 'auto',
-    padding: '10px 16px',
-    minWidth: 120,
+  const btnSecondaryStyle: React.CSSProperties = {
+    padding: '14px 24px',
+    borderRadius: '8px',
+    border: '2px solid #d1d5db',
+    background: 'transparent',
+    color: '#6b7280',
+    fontSize: '16px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   };
 
-  const btnRow: React.CSSProperties = {
+  const errorStyle: React.CSSProperties = {
+    color: '#ef4444',
+    fontSize: '14px',
+    fontWeight: 500,
+    padding: '12px 16px',
+    background: '#fef2f2',
+    borderRadius: '8px',
+    border: '1px solid #fecaca',
+  };
+
+  const tipStyle: React.CSSProperties = {
+    textAlign: 'center' as const,
+    color: '#64748b',
+    fontSize: '14px',
+    padding: '16px',
+    background: '#f8fafc',
+    borderRadius: '8px',
+    border: '1px solid #e2e8f0',
+  };
+
+  const userCardStyle: React.CSSProperties = {
     display: 'flex',
-    gap: 12,
-    marginTop: 12,
+    alignItems: 'center',
+    gap: '16px',
+    padding: '20px',
+    background: 'white',
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0',
+    marginBottom: '24px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
   };
 
-  const ghostBtn: React.CSSProperties = {
-    flex: 1,
-    padding: '12px 14px',
-    borderRadius: 10,
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'transparent',
-    color: 'rgba(255,255,255,0.95)',
-    cursor: 'pointer',
-    fontWeight: 600,
+  const avatarStyle: React.CSSProperties = {
+    width: '60px',
+    height: '60px',
+    borderRadius: '12px',
+    background: '#1e88e5',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '24px',
+    fontWeight: 700,
   };
 
-  // smaller logout button variant
-  const logoutBtn: React.CSSProperties = {
-    padding: '8px 10px',
-    borderRadius: 10,
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'transparent',
-    color: 'rgba(255,255,255,0.95)',
-    cursor: 'pointer',
-    fontWeight: 600,
-    width: 'auto',
-    minWidth: 88,
+  const buttonsRowStyle: React.CSSProperties = {
+    display: 'flex',
+    gap: '12px',
+    marginTop: '24px',
   };
 
   const rightStyle: React.CSSProperties = {
-    flex: '1 1 60%',
+    flex: '1 1 65%',
     minHeight: '100vh',
-    // keep the right side purely background image — no overlay
+    position: 'relative' as const,
+  };
+
+  const overlayStyle: React.CSSProperties = {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(135deg, rgba(30, 136, 229, 0.1) 0%, rgba(21, 101, 192, 0.05) 100%)',
   };
 
   return (
     <div style={pageStyle}>
-      <aside style={leftStyle} aria-label="Sign in panel">
+      <aside style={leftStyle}>
         <div style={contentStyle}>
           {!user ? (
             <>
-              <div>
-                <h1 style={headingStyle}>Flowop</h1>
-                <div style={subStyle}>Sign in to your workspace</div>
+              <div style={brandStyle}>
+                <div style={logoStyle}>Flowops</div>
+                <h1 style={headingStyle}>Welcome Back</h1>
+                <p style={subStyle}>Sign in to access your workspace</p>
               </div>
 
-              <form onSubmit={handleLogin} style={{ display: 'grid', gap: 12 }}>
-                <div>
-                  <label style={labelStyle} htmlFor="email">
-                    Email
-                  </label>
+              <form onSubmit={handleLogin} style={formStyle}>
+                <div style={fieldStyle}>
+                  <label style={labelStyle} htmlFor="email">Email Address</label>
                   <input
                     id="email"
                     style={inputStyle}
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
                     required
                     autoComplete="email"
+                    onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
+                    onBlur={(e) => Object.assign(e.target.style, inputStyle)}
                   />
                 </div>
 
-                <div>
-                  <label style={labelStyle} htmlFor="password">
-                    Password
-                  </label>
+                <div style={fieldStyle}>
+                  <label style={labelStyle} htmlFor="password">Password</label>
                   <input
                     id="password"
                     style={inputStyle}
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
                     required
                     autoComplete="current-password"
+                    onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
+                    onBlur={(e) => Object.assign(e.target.style, inputStyle)}
                   />
                 </div>
 
-                {error && <div style={{ color: '#ffd2d2', fontWeight: 600 }}>{error}</div>}
+                {error && <div style={errorStyle}>{error}</div>}
 
-                <div style={btnRow}>
-                  <button type="submit" style={btnPrimarySmall} disabled={loading}>
-                    {loading ? 'Signing in…' : 'Sign in'}
-                  </button>
-                </div>
+                <button 
+                  type="submit" 
+                  style={btnPrimaryStyle} 
+                  disabled={loading}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#1565c0';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#1e88e5';
+                  }}
+                >
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </button>
 
-                <div style={{ marginTop: 8, color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
-                  Tip: seeded users use password <strong style={{ color: '#fff' }}>Password123!</strong>
+                <div style={tipStyle}>
+                  💡 <strong>Demo Tip:</strong> Use password <code style={{ background: '#e2e8f0', padding: '2px 6px', borderRadius: '4px' }}>Password123!</code>
                 </div>
               </form>
             </>
           ) : (
             <>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-                <div
-                  style={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: 12,
-                    background: 'rgba(255,255,255,0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontWeight: 700,
-                    fontSize: 20,
-                  }}
-                >
+              <div style={brandStyle}>
+                <div style={logoStyle}>Flowops</div>
+                <h1 style={headingStyle}>Choose Your Role</h1>
+                <p style={subStyle}>Select your workspace role to continue</p>
+              </div>
+
+              <div style={userCardStyle}>
+                <div style={avatarStyle}>
                   {(user.firstName?.[0] || user.email?.[0] || 'U').toUpperCase()}
                 </div>
                 <div>
-                  <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>
-                    {user.firstName ?? user.email}
+                  <div style={{ fontSize: '18px', fontWeight: 600, color: '#1e293b', marginBottom: '4px' }}>
+                    {user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user.email}
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: 13 }}>Choose your active role</div>
+                  <div style={{ fontSize: '14px', color: '#64748b' }}>
+                    {user.email}
+                  </div>
                 </div>
               </div>
 
-              <div style={{ marginTop: 8 }}>
-                <label style={labelStyle}>Role</label>
+              <div style={fieldStyle}>
+                <label style={labelStyle}>Select Role</label>
                 <select
                   value={selectedRoleId ?? ''}
                   onChange={(e) => setSelectedRoleId(e.target.value)}
-                  style={{ ...inputStyle, padding: '10px 12px', appearance: 'none', background: '#fff' }}
+                  style={{ ...inputStyle, cursor: 'pointer' }}
                 >
-                  <option value="" disabled>
-                    -- Select role --
-                  </option>
+                  <option value="" disabled>Choose your role...</option>
                   {roles.map((r) => (
                     <option key={r.id} value={r.id}>
-                      {r.name}
-                      {r.description ? ` — ${r.description}` : ''}
+                      {r.name}{r.description ? ` — ${r.description}` : ''}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {error && <div style={{ color: '#ffd2d2', fontWeight: 600, marginTop: 8 }}>{error}</div>}
+              {error && <div style={errorStyle}>{error}</div>}
 
-              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <button onClick={handleProceed} style={btnPrimarySmall}>
+              <div style={buttonsRowStyle}>
+                <button 
+                  onClick={handleProceed} 
+                  style={{ ...btnPrimaryStyle, flex: 1 }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#1565c0';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#1e88e5';
+                  }}
+                >
                   Continue
                 </button>
-                <button onClick={handleLogout} style={logoutBtn}>
-                  Logout
+                <button 
+                  onClick={handleLogout} 
+                  style={btnSecondaryStyle}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#374151';
+                    e.currentTarget.style.borderColor = '#9ca3af';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#6b7280';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                  }}
+                >
+                  Log Out
                 </button>
               </div>
             </>
@@ -434,7 +516,9 @@ export default function Auth() {
         </div>
       </aside>
 
-      <div style={rightStyle} aria-hidden />
+      <div style={rightStyle}>
+        <div style={overlayStyle} />
+      </div>
     </div>
   );
 }

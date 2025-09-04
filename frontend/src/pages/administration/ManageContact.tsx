@@ -16,6 +16,7 @@ import {
   useToast,
   Text,
   IconButton,
+  Divider,
 } from "@chakra-ui/react"
 import { CalendarIcon, AddIcon, DeleteIcon } from "@chakra-ui/icons"
 import * as yup from "yup"
@@ -87,6 +88,8 @@ const initialValues = {
   emails: [""],
   officeNumber: "",
   cellNumber: "",
+  officeCountryCode: "+1",
+  cellCountryCode: "+1",
   addresses: [{ line1: [""], line2: "", city: "", state: "", zip: "" }],
   dateOfBirth: "",
   workAnniversary: "",
@@ -201,7 +204,7 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
   }
 
   const removeAddressLine1 = (addrIndex: number, lineIndex: number) => {
-    setValues((v) => ({
+    setValues((v) => ( {
       ...v,
       addresses: v.addresses.map((addr, i) =>
         i === addrIndex ? { ...addr, line1: addr.line1.filter((_, j) => j !== lineIndex) } : addr
@@ -262,8 +265,8 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
         lastName: values.lastName,
         emails: values.emails,
         confirmEmail: values.emails[0],
-        phoneNo: values.cellNumber,
-        officeNo: values.officeNumber,
+        phoneNo: `${values.cellCountryCode} ${values.cellNumber}`,
+        officeNo: `${values.officeCountryCode} ${values.officeNumber}`,
         role: values.title || null,
         userGroup: values.group || "None Selected",
         addresses: values.addresses,
@@ -337,7 +340,7 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
       ref={ref}
       onClick={onClick}
       variant="outline"
-      size="md"
+      size="xs"
       rightIcon={<CalendarIcon />}
       isDisabled={isReadOnly}
       w="full"
@@ -347,12 +350,12 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
   ))
 
   return (
-    <Container maxW="7xl" py={8}>
-      <Box mb={6}>
-        <Heading size="lg" textAlign="center">CONTACT REGISTRATION</Heading>
+    <Container maxW="5xl" py={1}>
+      <Box mb={1}>
+        <Heading size="sm" textAlign="center">CONTACT REGISTRATION</Heading>
       </Box>
 
-      <Box bg="whiteAlpha.900" p={8} borderRadius="lg" boxShadow="lg">
+      <Box bg="whiteAlpha.900" p={2} borderRadius="md" boxShadow="md">
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -363,11 +366,14 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
             }
           }}
         >
-          <VStack spacing={8} align="stretch">
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }} gap={6}>
+          <VStack spacing={1} align="stretch">
+            <Text fontSize="sm" fontWeight="bold" color="gray.600">Basic Information</Text>
+            <Divider />
+
+            <Grid templateColumns="repeat(2, 1fr)" gap={1} alignItems="center">
               <FormControl isInvalid={!!errors.type}>
-                <FormLabel fontSize="md" fontWeight="semibold">Type <span style={{color: 'red'}}>*</span></FormLabel>
-                <Select name="type" value={values.type} onChange={handleChange} placeholder="Select type" isDisabled={isReadOnly} size="md">
+                <FormLabel fontSize="xs" fontWeight="semibold">Type <span style={{color: 'red'}}>*</span></FormLabel>
+                <Select name="type" value={values.type} onChange={handleChange} placeholder="Select type" isDisabled={isReadOnly} size="xs">
                   <option value="individual">Individual</option>
                   <option value="company">Company</option>
                 </Select>
@@ -375,18 +381,18 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Existing Contacts</FormLabel>
-                <Select name="existingContacts" value={values.existingContacts} onChange={handleChange} placeholder="Select" isDisabled={isReadOnly} size="md">
+                <FormLabel fontSize="xs" fontWeight="semibold">Existing Contacts</FormLabel>
+                <Select name="existingContacts" value={values.existingContacts} onChange={handleChange} placeholder="Select" isDisabled={isReadOnly} size="xs">
                   <option value="contact1">Contact 1</option>
                   <option value="contact2">Contact 2</option>
                 </Select>
               </FormControl>
             </Grid>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(3,1fr)" }} gap={6}>
+            <Grid templateColumns="repeat(3, 1fr)" gap={1} alignItems="center">
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Pronouns</FormLabel>
-                <Select name="pronouns" value={values.pronouns} onChange={handleChange} placeholder="Select" isDisabled={isReadOnly} size="md">
+                <FormLabel fontSize="xs" fontWeight="semibold">Pronouns</FormLabel>
+                <Select name="pronouns" value={values.pronouns} onChange={handleChange} placeholder="Select" isDisabled={isReadOnly} size="xs">
                   <option value="he/him">He/Him</option>
                   <option value="she/her">She/Her</option>
                   <option value="they/them">They/Them</option>
@@ -394,109 +400,137 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
               </FormControl>
 
               <FormControl isInvalid={!!errors.firstName}>
-                <FormLabel fontSize="md" fontWeight="semibold">First Name <span style={{color: 'red'}}>*</span></FormLabel>
-                <Input name="firstName" value={values.firstName} onChange={handleChange} placeholder="First Name" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">First Name <span style={{color: 'red'}}>*</span></FormLabel>
+                <Input name="firstName" value={values.firstName} onChange={handleChange} placeholder="First Name" isReadOnly={isReadOnly} size="xs" />
                 <FormErrorMessage>{errors.firstName}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.lastName}>
-                <FormLabel fontSize="md" fontWeight="semibold">Last Name <span style={{color: 'red'}}>*</span></FormLabel>
-                <Input name="lastName" value={values.lastName} onChange={handleChange} placeholder="Last Name" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Last Name <span style={{color: 'red'}}>*</span></FormLabel>
+                <Input name="lastName" value={values.lastName} onChange={handleChange} placeholder="Last Name" isReadOnly={isReadOnly} size="xs" />
                 <FormErrorMessage>{errors.lastName}</FormErrorMessage>
               </FormControl>
             </Grid>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }} gap={6}>
+            <Grid templateColumns="repeat(2, 1fr)" gap={1} alignItems="center">
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Suffix</FormLabel>
-                <Input name="suffix" value={values.suffix} onChange={handleChange} placeholder="Suffix" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Suffix</FormLabel>
+                <Input name="suffix" value={values.suffix} onChange={handleChange} placeholder="Suffix" isReadOnly={isReadOnly} size="xs" />
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Title</FormLabel>
-                <Input name="title" value={values.title} onChange={handleChange} placeholder="Title" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Title</FormLabel>
+                <Input name="title" value={values.title} onChange={handleChange} placeholder="Title" isReadOnly={isReadOnly} size="xs" />
               </FormControl>
             </Grid>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(4,1fr)" }} gap={6}>
-              <FormControl isInvalid={!!errors.emails}>
-                <FormLabel fontSize="md" fontWeight="semibold">Email Addresses <span style={{color: 'red'}}>*</span></FormLabel>
-                <VStack spacing={3} align="stretch">
-                  {values.emails.map((email, index) => (
-                    <HStack key={index} spacing={3}>
-                      <Input value={email} onChange={(e) => handleEmailChange(index, e.target.value)} placeholder="Email" isReadOnly={isReadOnly} size="md" flex={1} />
-                      {values.emails.length > 1 && (
-                        <IconButton icon={<DeleteIcon />} onClick={() => removeEmail(index)} aria-label="Remove email" size="md" />
-                      )}
-                    </HStack>
-                  ))}
-                  <IconButton icon={<AddIcon />} onClick={addEmail} aria-label="Add email" size="sm" alignSelf="flex-start" />
-                </VStack>
-                <FormErrorMessage>{errors.emails}</FormErrorMessage>
-              </FormControl>
+            <Text fontSize="sm" fontWeight="bold" color="gray.600" mt={2}>Contact Details</Text>
+            <Divider />
 
+            <FormControl isInvalid={!!errors.emails}>
+              <FormLabel fontSize="xs" fontWeight="semibold">Email Addresses <span style={{color: 'red'}}>*</span></FormLabel>
+              <VStack spacing={1} align="stretch">
+                {values.emails.map((email, index) => (
+                  <HStack key={index} spacing={1} align="center">
+                    <Input value={email} onChange={(e) => handleEmailChange(index, e.target.value)} placeholder="Email" isReadOnly={isReadOnly} size="xs" flex={1} maxW="300px" />
+                    {values.emails.length > 1 && (
+                      <IconButton icon={<DeleteIcon />} onClick={() => removeEmail(index)} aria-label="Remove email" size="xs" />
+                    )}
+                    {index === values.emails.length - 1 && (
+                      <IconButton icon={<AddIcon />} onClick={addEmail} aria-label="Add email" size="xs" />
+                    )}
+                  </HStack>
+                ))}
+              </VStack>
+              <FormErrorMessage>{errors.emails}</FormErrorMessage>
+            </FormControl>
+
+            <Grid templateColumns="repeat(3, 1fr)" gap={1} alignItems="center">
               <FormControl isInvalid={!!errors.officeNumber}>
-                <FormLabel fontSize="md" fontWeight="semibold">Office Number <span style={{color: 'red'}}>*</span></FormLabel>
-                <Input name="officeNumber" value={values.officeNumber} onChange={handleChange} placeholder="Office Number" maxLength={10} isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Office Number <span style={{color: 'red'}}>*</span></FormLabel>
+                <HStack spacing={1} align="center">
+                  <Select name="officeCountryCode" value={values.officeCountryCode} onChange={handleChange} isDisabled={isReadOnly} size="xs" w="80px">
+                    <option value="+1">US +1</option>
+                    <option value="+91">India +91</option>
+                    <option value="+44">UK +44</option>
+                    <option value="+61">Australia +61</option>
+                    <option value="+81">Japan +81</option>
+                  </Select>
+                  <Input name="officeNumber" value={values.officeNumber} onChange={handleChange} placeholder="Office Number" maxLength={10} isReadOnly={isReadOnly} size="xs" flex={1} />
+                </HStack>
                 <FormErrorMessage>{errors.officeNumber}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.cellNumber}>
-                <FormLabel fontSize="md" fontWeight="semibold">Cell Number <span style={{color: 'red'}}>*</span></FormLabel>
-                <Input name="cellNumber" value={values.cellNumber} onChange={handleChange} placeholder="Cell Number" maxLength={10} isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Cell Number <span style={{color: 'red'}}>*</span></FormLabel>
+                <HStack spacing={1} align="center">
+                  <Select name="cellCountryCode" value={values.cellCountryCode} onChange={handleChange} isDisabled={isReadOnly} size="xs" w="80px">
+                    <option value="+1">US +1</option>
+                    <option value="+91">India +91</option>
+                    <option value="+44">UK +44</option>
+                    <option value="+61">Australia +61</option>
+                    <option value="+81">Japan +81</option>
+                  </Select>
+                  <Input name="cellNumber" value={values.cellNumber} onChange={handleChange} placeholder="Cell Number" maxLength={10} isReadOnly={isReadOnly} size="xs" flex={1} />
+                </HStack>
                 <FormErrorMessage>{errors.cellNumber}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.group}>
-                <FormLabel fontSize="md" fontWeight="semibold">Group <span style={{color: 'red'}}>*</span></FormLabel>
-                <Input name="group" value={values.group} onChange={handleChange} placeholder="Group" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Group <span style={{color: 'red'}}>*</span></FormLabel>
+                <Input name="group" value={values.group} onChange={handleChange} placeholder="Group" isReadOnly={isReadOnly} size="xs" />
                 <FormErrorMessage>{errors.group}</FormErrorMessage>
               </FormControl>
             </Grid>
 
+            <Text fontSize="sm" fontWeight="bold" color="gray.600" mt={2}>Address Information</Text>
+            <Divider />
+
             <FormControl isInvalid={!!errors.addresses}>
-              <FormLabel fontSize="md" fontWeight="semibold">Addresses <span style={{color: 'red'}}>*</span></FormLabel>
-              <VStack spacing={4} align="stretch">
+              <FormLabel fontSize="xs" fontWeight="semibold">Addresses <span style={{color: 'red'}}>*</span></FormLabel>
+              <VStack spacing={1} align="stretch">
                 {values.addresses.map((address, index) => (
-                  <Box key={index} border="1px solid #e2e8f0" p={6} borderRadius="md">
-                    <Grid templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }} gap={4}>
+                  <Box key={index} border="1px solid #e2e8f0" p={1} borderRadius="md" minHeight="150px">
+                    <Grid templateColumns="repeat(2, 1fr)" gap={1} alignItems="center">
                       <FormControl>
-                        <FormLabel fontSize="sm">Address Line 1</FormLabel>
-                        <VStack spacing={2} align="stretch">
+                        <FormLabel fontSize="xs">Address Line 1</FormLabel>
+                        <VStack spacing={1} align="stretch">
                           {address.line1.map((line, lineIndex) => (
-                            <HStack key={lineIndex} spacing={2}>
-                              <Input value={line} onChange={(e) => handleAddressLine1Change(index, lineIndex, e.target.value)} placeholder="Address Line 1" isReadOnly={isReadOnly} size="md" flex={1} />
+                            <HStack key={lineIndex} spacing={1} align="center">
+                              <Input value={line} onChange={(e) => handleAddressLine1Change(index, lineIndex, e.target.value)} placeholder="Address Line 1" isReadOnly={isReadOnly} size="xs" flex={1} maxW="400px" />
                               {address.line1.length > 1 && (
-                                <IconButton icon={<DeleteIcon />} onClick={() => removeAddressLine1(index, lineIndex)} aria-label="Remove line" size="sm" />
+                                <IconButton icon={<DeleteIcon />} onClick={() => removeAddressLine1(index, lineIndex)} aria-label="Remove line" size="xs" />
+                              )}
+                              {lineIndex === address.line1.length - 1 && (
+                                <IconButton icon={<AddIcon />} onClick={() => addAddressLine1(index)} aria-label="Add address line 1" size="xs" />
                               )}
                             </HStack>
                           ))}
-                          <IconButton icon={<AddIcon />} onClick={() => addAddressLine1(index)} aria-label="Add address line 1" size="sm" alignSelf="flex-start" />
                         </VStack>
                       </FormControl>
                       <FormControl>
-                        <FormLabel fontSize="sm">Address Line 2</FormLabel>
-                        <Input value={address.line2} onChange={(e) => handleAddressChange(index, "line2", e.target.value)} placeholder="Address 2" isReadOnly={isReadOnly} size="md" />
+                        <FormLabel fontSize="xs">Address Line 2</FormLabel>
+                        <Input value={address.line2} onChange={(e) => handleAddressChange(index, "line2", e.target.value)} placeholder="Address 2" isReadOnly={isReadOnly} size="xs" />
                       </FormControl>
                       <FormControl>
-                        <FormLabel fontSize="sm">City</FormLabel>
-                        <Input value={address.city} onChange={(e) => handleAddressChange(index, "city", e.target.value)} placeholder="City" isReadOnly={isReadOnly} size="md" />
+                        <FormLabel fontSize="xs">City</FormLabel>
+                        <Input value={address.city} onChange={(e) => handleAddressChange(index, "city", e.target.value)} placeholder="City" isReadOnly={isReadOnly} size="xs" />
                       </FormControl>
                       <FormControl>
-                        <FormLabel fontSize="sm">State</FormLabel>
-                        <Select value={address.state} onChange={(e) => handleAddressChange(index, "state", e.target.value)} placeholder="Select" isDisabled={isReadOnly} size="md">
+                        <FormLabel fontSize="xs">State</FormLabel>
+                        <Select value={address.state} onChange={(e) => handleAddressChange(index, "state", e.target.value)} placeholder="Select" isDisabled={isReadOnly} size="xs">
                           <option value="CA">California</option>
                           <option value="NY">New York</option>
                           <option value="TX">Texas</option>
                         </Select>
                       </FormControl>
                       <FormControl>
-                        <FormLabel fontSize="sm">Zip</FormLabel>
-                        <Input value={address.zip} onChange={(e) => handleAddressChange(index, "zip", e.target.value.replace(/\D/g, ""))} placeholder="Zip" isReadOnly={isReadOnly} size="md" />
+                        <FormLabel fontSize="xs">Zip</FormLabel>
+                        <Input value={address.zip} onChange={(e) => handleAddressChange(index, "zip", e.target.value.replace(/\D/g, ""))} placeholder="Zip" isReadOnly={isReadOnly} size="xs" />
                       </FormControl>
                     </Grid>
                     {values.addresses.length > 1 && (
-                      <IconButton icon={<DeleteIcon />} onClick={() => removeAddress(index)} aria-label="Remove address" size="md" mt={4} alignSelf="flex-end" />
+                      <IconButton icon={<DeleteIcon />} onClick={() => removeAddress(index)} aria-label="Remove address" size="xs" mt={1} alignSelf="flex-end" />
                     )}
                   </Box>
                 ))}
@@ -504,10 +538,13 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
               <FormErrorMessage>{errors.addresses}</FormErrorMessage>
             </FormControl>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }} gap={6}>
+            <Text fontSize="sm" fontWeight="bold" color="gray.600" mt={2}>Additional Details</Text>
+            <Divider />
+
+            <Grid templateColumns="repeat(2, 1fr)" gap={1} alignItems="center">
               <FormControl isInvalid={!!errors.status}>
-                <FormLabel fontSize="md" fontWeight="semibold">Status <span style={{color: 'red'}}>*</span></FormLabel>
-                <Select name="status" value={values.status} onChange={handleChange} isDisabled={isReadOnly} size="md">
+                <FormLabel fontSize="xs" fontWeight="semibold">Status <span style={{color: 'red'}}>*</span></FormLabel>
+                <Select name="status" value={values.status} onChange={handleChange} isDisabled={isReadOnly} size="xs">
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </Select>
@@ -515,131 +552,167 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Report</FormLabel>
-                <Select name="report" value={values.report} onChange={handleChange} placeholder="Select" isDisabled={isReadOnly} size="md">
+                <FormLabel fontSize="xs" fontWeight="semibold">Report</FormLabel>
+                <Select name="report" value={values.report} onChange={handleChange} placeholder="Select" isDisabled={isReadOnly} size="xs">
                   <option value="report1">Report 1</option>
                   <option value="report2">Report 2</option>
                 </Select>
               </FormControl>
             </Grid>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(3,1fr)" }} gap={6}>
+            <Grid templateColumns="repeat(5, 1fr)" gap={3} alignItems="start" mb={4}>
               <FormControl isInvalid={!!errors.dateOfBirth}>
-                <FormLabel fontSize="md" fontWeight="semibold">Date Of Birth</FormLabel>
-                <DatePicker
-                  selected={values.dateOfBirth ? new Date(values.dateOfBirth) : null}
-                  onChange={(date) => handleDateChange("dateOfBirth", date)}
-                  dateFormat="yyyy-MM-dd"
-                  customInput={<CustomDateInput />}
-                  disabled={isReadOnly}
-                />
+                <FormLabel fontSize="xs" fontWeight="semibold">Date Of Birth</FormLabel>
+                <Box position="relative" zIndex={9999}>
+                  <DatePicker
+                    selected={values.dateOfBirth ? new Date(values.dateOfBirth) : null}
+                    onChange={(date) => handleDateChange("dateOfBirth", date)}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<CustomDateInput />}
+                    disabled={isReadOnly}
+                    popperPlacement="bottom-start"
+                    popperModifiers={[
+                      {
+                        name: "preventOverflow",
+                        options: {
+                          rootBoundary: "viewport",
+                          tether: false,
+                          altAxis: true,
+                        },
+                      },
+                    ] as any}
+                  />
+                </Box>
                 <FormErrorMessage>{errors.dateOfBirth}</FormErrorMessage>
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Work Anniversary</FormLabel>
-                <DatePicker
-                  selected={values.workAnniversary ? new Date(values.workAnniversary) : null}
-                  onChange={(date) => handleDateChange("workAnniversary", date)}
-                  dateFormat="yyyy-MM-dd"
-                  customInput={<CustomDateInput />}
-                  disabled={isReadOnly}
-                />
+                <FormLabel fontSize="xs" fontWeight="semibold">Work Anniversary</FormLabel>
+                <Box position="relative" zIndex={9998}>
+                  <DatePicker
+                    selected={values.workAnniversary ? new Date(values.workAnniversary) : null}
+                    onChange={(date) => handleDateChange("workAnniversary", date)}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<CustomDateInput />}
+                    disabled={isReadOnly}
+                    popperPlacement="bottom-start"
+                    popperModifiers={[
+                      {
+                        name: "preventOverflow",
+                        options: {
+                          rootBoundary: "viewport",
+                          tether: false,
+                          altAxis: true,
+                        },
+                      },
+                    ] as any}
+                  />
+                </Box>
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Marital Status</FormLabel>
-                <Select name="maritalStatus" value={values.maritalStatus} onChange={handleChange} placeholder="Select" isDisabled={isReadOnly} size="md">
+                <FormLabel fontSize="xs" fontWeight="semibold">Marital Status</FormLabel>
+                <Select name="maritalStatus" value={values.maritalStatus} onChange={handleChange} placeholder="Select" isDisabled={isReadOnly} size="xs">
                   <option value="single">Single</option>
                   <option value="married">Married</option>
                   <option value="divorced">Divorced</option>
                 </Select>
               </FormControl>
-            </Grid>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }} gap={6}>
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Spouse Name</FormLabel>
-                <Input name="spouseName" value={values.spouseName} onChange={handleChange} placeholder="Spouse Name" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Spouse Name</FormLabel>
+                <Input name="spouseName" value={values.spouseName} onChange={handleChange} placeholder="Spouse Name" isReadOnly={isReadOnly} size="xs" />
               </FormControl>
 
               <FormControl isInvalid={!!errors.children}>
-                <FormLabel fontSize="md" fontWeight="semibold">Children's Names</FormLabel>
-                <VStack spacing={3} align="stretch">
+                <FormLabel fontSize="xs" fontWeight="semibold">Children's Names</FormLabel>
+                <VStack spacing={1} align="stretch">
                   {values.children.map((child, index) => (
-                    <HStack key={index} spacing={3}>
-                      <Input value={child} onChange={(e) => handleChildChange(index, e.target.value)} placeholder="Child's Name" isReadOnly={isReadOnly} size="md" flex={1} />
+                    <HStack key={index} spacing={1} align="center">
+                      <Input value={child} onChange={(e) => handleChildChange(index, e.target.value)} placeholder="Child's Name" isReadOnly={isReadOnly} size="xs" flex={1} maxW="200px" />
                       {values.children.length > 1 && (
-                        <IconButton icon={<DeleteIcon />} onClick={() => setValues((v) => ({ ...v, children: v.children.filter((_, i) => i !== index) })) } aria-label="Remove child" size="md" />
+                        <IconButton icon={<DeleteIcon />} onClick={() => setValues((v) => ({ ...v, children: v.children.filter((_, i) => i !== index) })) } aria-label="Remove child" size="xs" />
+                      )}
+                      {index === values.children.length - 1 && (
+                        <IconButton icon={<AddIcon />} onClick={addChild} aria-label="Add child" size="xs" />
                       )}
                     </HStack>
                   ))}
-                  <IconButton icon={<AddIcon />} onClick={addChild} aria-label="Add child" size="sm" alignSelf="flex-start" />
                 </VStack>
                 <FormErrorMessage>{errors.children}</FormErrorMessage>
               </FormControl>
             </Grid>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(4,1fr)" }} gap={6}>
+            <Grid templateColumns="repeat(4, 1fr)" gap={1} alignItems="center">
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">College</FormLabel>
-                <Input name="college" value={values.college} onChange={handleChange} placeholder="College" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">College</FormLabel>
+                <Input name="college" value={values.college} onChange={handleChange} placeholder="College" isReadOnly={isReadOnly} size="xs" />
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Degree</FormLabel>
-                <Input name="degree" value={values.degree} onChange={handleChange} placeholder="Degree" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Degree</FormLabel>
+                <Input name="degree" value={values.degree} onChange={handleChange} placeholder="Degree" isReadOnly={isReadOnly} size="xs" />
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Prior Employer</FormLabel>
-                <Input name="priorEmployer" value={values.priorEmployer} onChange={handleChange} placeholder="Prior Employer" isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Prior Employer</FormLabel>
+                <Input name="priorEmployer" value={values.priorEmployer} onChange={handleChange} placeholder="Prior Employer" isReadOnly={isReadOnly} size="xs" />
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">End Date</FormLabel>
-                <DatePicker
-                  selected={values.endDate ? new Date(values.endDate) : null}
-                  onChange={(date) => handleDateChange("endDate", date)}
-                  dateFormat="yyyy-MM-dd"
-                  customInput={<CustomDateInput />}
-                  disabled={isReadOnly}
-                />
+                <FormLabel fontSize="xs" fontWeight="semibold">End Date</FormLabel>
+                <Box position="relative" zIndex={9997}>
+                  <DatePicker
+                    selected={values.endDate ? new Date(values.endDate) : null}
+                    onChange={(date) => handleDateChange("endDate", date)}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<CustomDateInput />}
+                    disabled={isReadOnly}
+                    popperPlacement="bottom-start"
+                    popperModifiers={[
+                      {
+                        name: "preventOverflow",
+                        options: {
+                          rootBoundary: "viewport",
+                          tether: false,
+                          altAxis: true,
+                        },
+                      },
+                    ] as any}
+                  />
+                </Box>
               </FormControl>
             </Grid>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }} gap={8}>
+            <Grid templateColumns="repeat(3, 1fr)" gap={1} alignItems="center">
               <FormControl>
-                <FormLabel fontSize="md" fontWeight="semibold">Notes</FormLabel>
-                <Textarea name="notes" value={values.notes} onChange={handleChange} rows={4} isReadOnly={isReadOnly} size="md" />
+                <FormLabel fontSize="xs" fontWeight="semibold">Notes</FormLabel>
+                <Textarea name="notes" value={values.notes} onChange={handleChange} rows={2} isReadOnly={isReadOnly} size="xs" />
               </FormControl>
 
-              <VStack align="stretch" spacing={4}>
-                <FormControl>
-                  <FormLabel fontSize="md" fontWeight="semibold">Sports Team</FormLabel>
-                  <Input name="sportsTeam" value={values.sportsTeam} onChange={handleChange} placeholder="Sports Team" isReadOnly={isReadOnly} size="md" />
-                </FormControl>
+              <FormControl>
+                <FormLabel fontSize="xs" fontWeight="semibold">Sports Team</FormLabel>
+                <Input name="sportsTeam" value={values.sportsTeam} onChange={handleChange} placeholder="Sports Team" isReadOnly={isReadOnly} size="xs" />
+              </FormControl>
 
-                <FormControl>
-                  <FormLabel fontSize="md" fontWeight="semibold">Favorites</FormLabel>
-                  <Input name="favorites" value={values.favorites} onChange={handleChange} placeholder="Favorites" isReadOnly={isReadOnly} size="md" />
-                </FormControl>
-              </VStack>
+              <FormControl>
+                <FormLabel fontSize="xs" fontWeight="semibold">Favorites</FormLabel>
+                <Input name="favorites" value={values.favorites} onChange={handleChange} placeholder="Favorites" isReadOnly={isReadOnly} size="xs" />
+              </FormControl>
             </Grid>
 
-            <Box textAlign="center" pt={6}>
-              <HStack spacing={4} justify="center">
-                <Button variant="outline" onClick={onClose} size="lg">
+            <Box textAlign="center" pt={1}>
+              <HStack spacing={2} justify="center">
+                <Button variant="outline" onClick={onClose} size="xs">
                   Cancel
                 </Button>
                 {(mode === "edit" || mode === "create") && (
                   <Button
                     type="submit"
                     colorScheme="blue"
-                    size="lg"
-                    px={10}
+                    size="xs"
+                    px={3}
                     isLoading={isSubmitting}
-                    _hover={{ transform: "translateY(-1px)" }}
                   >
                     {mode === "create" ? "Register Contact" : "Save Changes"}
                   </Button>

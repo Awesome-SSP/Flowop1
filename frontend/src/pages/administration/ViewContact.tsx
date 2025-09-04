@@ -16,6 +16,8 @@ const sampleUsers: User[] = [
     { id: "2", name: "Bob Smith", role: "User", code: "B200", email: "bob@example.com", contactStatus: "inactive", pipewayStatus: "disconnected" },
     { id: "3", name: "Charlie Brown", role: "Manager", code: "C300", email: "charlie@example.com", contactStatus: "active", pipewayStatus: "connected" },
     { id: "4", name: "Diana Prince", role: "User", code: "D400", email: "diana@example.com", contactStatus: "inactive", pipewayStatus: "connected" },
+    { id: "5", name: "Edward Davis", role: "User", code: "E500", email: "edward@example.com", contactStatus: "active", pipewayStatus: "connected" },
+    { id: "6", name: "Fiona Green", role: "Manager", code: "F600", email: "fiona@example.com", contactStatus: "inactive", pipewayStatus: "disconnected" },
 ];
 
 // Define the prop shape you expect ManageContact to accept.
@@ -39,10 +41,15 @@ export default function ViewContact(): React.ReactElement {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<"view" | "edit" | "create">("view");
     const [activeUser, setActiveUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        // Replace this with a real API call if needed.
-        setUsers(sampleUsers);
+        setLoading(true);
+        // Simulate API call
+        setTimeout(() => {
+            setUsers(sampleUsers);
+            setLoading(false);
+        }, 500);
     }, []);
 
     const filtered = useMemo(() => {
@@ -93,7 +100,6 @@ export default function ViewContact(): React.ReactElement {
     }
 
     function handleSave(saved: User) {
-        // basic upsert logic; replace with API calls in real app
         setUsers(prev => {
             const exists = prev.findIndex(p => p.id === saved.id);
             if (exists >= 0) {
@@ -101,7 +107,7 @@ export default function ViewContact(): React.ReactElement {
                 copy[exists] = saved;
                 return copy;
             }
-            return [saved, ...prev];
+            return [{ ...saved, id: Date.now().toString() }, ...prev];
         });
         setModalOpen(false);
     }
@@ -112,124 +118,129 @@ export default function ViewContact(): React.ReactElement {
     }
 
     return (
-        <div style={{ padding: 16, backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h2 style={{ margin: 0, color: "#333" }}>Contacts Management</h2>
+        <div style={{ padding: 16, backgroundColor: "#f5f5f5", minHeight: "100vh", position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <h2 style={{ margin: 0, color: "#333", fontSize: "20px" }}>Contacts Management</h2>
                 <button 
                     onClick={openCreate} 
                     style={{ 
-                        padding: "10px 20px", 
+                        padding: "8px 16px", 
                         backgroundColor: "#007bff", 
                         color: "white", 
                         border: "none", 
-                        borderRadius: "6px", 
+                        borderRadius: "4px", 
                         cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: "bold"
+                        fontSize: "14px"
                     }}
                 >
-                    Contact Registration
+                    Add Contact
                 </button>
             </div>
 
-            <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "center" }}>
                 <input
-                    placeholder="Search by name, email, code or role"
+                    placeholder="Search contacts"
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     style={{ 
-                        padding: "10px 15px", 
-                        minWidth: 350, 
+                        padding: "8px 12px", 
+                        minWidth: 300, 
                         border: "1px solid #ccc", 
-                        borderRadius: "6px",
-                        fontSize: "14px"
+                        borderRadius: "4px",
+                        fontSize: "14px",
+                        outline: "none"
                     }}
                 />
                 <button 
-                    onClick={() => {/* search is automatically triggered by query state */}}
+                    onClick={() => {/* search is automatic */}}
                     style={{ 
-                        padding: "10px 20px", 
+                        padding: "8px 16px", 
                         backgroundColor: "#28a745", 
                         color: "white", 
                         border: "none", 
-                        borderRadius: "6px", 
+                        borderRadius: "4px", 
                         cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: "bold"
+                        fontSize: "14px"
                     }}
                 >
                     Search
                 </button>
             </div>
 
-            <div style={{ overflowX: "auto", border: "1px solid #ddd", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                        <tr style={{ backgroundColor: "#e9ecef" }}>
-                            <th style={thStyle}>#</th>
-                            <th style={thStyle} onClick={() => handleSort("name")}>
-                                Name {sortKey === "name" ? (sortAsc ? "▲" : "▼") : ""}
-                            </th>
-                            <th style={thStyle} onClick={() => handleSort("role")}>
-                                Type (Role) {sortKey === "role" ? (sortAsc ? "▲" : "▼") : ""}
-                            </th>
-                            <th style={thStyle} onClick={() => handleSort("code")}>
-                                Code {sortKey === "code" ? (sortAsc ? "▲" : "▼") : ""}
-                            </th>
-                            <th style={thStyle} onClick={() => handleSort("email")}>
-                                Email ID {sortKey === "email" ? (sortAsc ? "▲" : "▼") : ""}
-                            </th>
-                            <th style={thStyle} onClick={() => handleSort("contactStatus")}>
-                                Contact Status {sortKey === "contactStatus" ? (sortAsc ? "▲" : "▼") : ""}
-                            </th>
-                            <th style={thStyle} onClick={() => handleSort("pipewayStatus")}>
-                                Pipeway Status {sortKey === "pipewayStatus" ? (sortAsc ? "▲" : "▼") : ""}
-                            </th>
-                            <th style={thStyle}>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtered.map((u, idx) => (
-                            <tr key={u.id} style={{ borderTop: "1px solid #eee", transition: "background-color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8f9fa"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ""}>
-                                <td style={tdStyle}>{idx + 1}</td>
-                                <td style={tdStyle}>{u.name}</td>
-                                <td style={tdStyle}>{u.role}</td>
-                                <td style={tdStyle}>{u.code}</td>
-                                <td style={tdStyle}>{u.email}</td>
-                                <td style={tdStyle}><StatusBadge value={u.contactStatus} /></td>
-                                <td style={tdStyle}><StatusBadge value={u.pipewayStatus} /></td>
-                                <td style={tdStyle}>
-                                    <button 
-                                        onClick={() => openView(u)} 
-                                        style={buttonStyle}
-                                    >
-                                        View
-                                    </button>
-                                    <button 
-                                        onClick={() => openEdit(u)}
-                                        style={{...buttonStyle, backgroundColor: "#ffc107", marginLeft: "8px"}}
-                                    >
-                                        Edit
-                                    </button>
-                                </td>
+            <div style={{ overflowX: "auto", border: "1px solid #ddd", borderRadius: "4px", backgroundColor: "white" }}>
+                {loading ? (
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "40px", color: "#666" }}>
+                        <p>Loading...</p>
+                    </div>
+                ) : (
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                            <tr style={{ backgroundColor: "#f0f0f0" }}>
+                                <th style={thStyle}>#</th>
+                                <th style={thStyle} onClick={() => handleSort("name")}>
+                                    Name {sortKey === "name" ? (sortAsc ? "↑" : "↓") : ""}
+                                </th>
+                                <th style={thStyle} onClick={() => handleSort("role")}>
+                                    Role {sortKey === "role" ? (sortAsc ? "↑" : "↓") : ""}
+                                </th>
+                                <th style={thStyle} onClick={() => handleSort("code")}>
+                                    Code {sortKey === "code" ? (sortAsc ? "↑" : "↓") : ""}
+                                </th>
+                                <th style={thStyle} onClick={() => handleSort("email")}>
+                                    Email {sortKey === "email" ? (sortAsc ? "↑" : "↓") : ""}
+                                </th>
+                                <th style={thStyle} onClick={() => handleSort("contactStatus")}>
+                                    Status {sortKey === "contactStatus" ? (sortAsc ? "↑" : "↓") : ""}
+                                </th>
+                                <th style={thStyle} onClick={() => handleSort("pipewayStatus")}>
+                                    Pipeway {sortKey === "pipewayStatus" ? (sortAsc ? "↑" : "↓") : ""}
+                                </th>
+                                <th style={thStyle}>Actions</th>
                             </tr>
-                        ))}
-                        {filtered.length === 0 && (
-                            <tr>
-                                <td colSpan={8} style={{ padding: 20, textAlign: "center", color: "#666", fontStyle: "italic" }}>
-                                    No contacts found
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filtered.map((u, idx) => (
+                                <tr key={u.id} style={{ borderBottom: "1px solid #eee" }}>
+                                    <td style={tdStyle}>{idx + 1}</td>
+                                    <td style={tdStyle}>{u.name}</td>
+                                    <td style={tdStyle}>{u.role}</td>
+                                    <td style={tdStyle}>{u.code}</td>
+                                    <td style={tdStyle}>{u.email}</td>
+                                    <td style={tdStyle}><StatusBadge value={u.contactStatus} /></td>
+                                    <td style={tdStyle}><StatusBadge value={u.pipewayStatus} /></td>
+                                    <td style={tdStyle}>
+                                        <button 
+                                            onClick={() => openView(u)} 
+                                            style={buttonStyle}
+                                        >
+                                            View
+                                        </button>
+                                        <button 
+                                            onClick={() => openEdit(u)}
+                                            style={{...buttonStyle, backgroundColor: "#ffc107", marginLeft: "4px"}}
+                                        >
+                                            Edit
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            {filtered.length === 0 && !loading && (
+                                <tr>
+                                    <td colSpan={8} style={{ padding: 20, textAlign: "center", color: "#666" }}>
+                                        No contacts found
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                )}
             </div>
 
             {modalOpen && (
                 <div style={modalOverlayStyle}>
                     <div style={modalStyle}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 20px", borderBottom: "1px solid #eee" }}>
-                            <h3 style={{ margin: 0 }}>{modalMode === "view" ? "View Contact" : modalMode === "edit" ? "Edit Contact" : "Create Contact"}</h3>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", borderBottom: "1px solid #ddd" }}>
+                            <h3 style={{ margin: 0, fontSize: "18px" }}>{modalMode === "view" ? "View Contact" : modalMode === "edit" ? "Edit Contact" : "Create Contact"}</h3>
                             <button 
                                 onClick={handleClose} 
                                 style={{ 
@@ -243,13 +254,15 @@ export default function ViewContact(): React.ReactElement {
                                 ×
                             </button>
                         </div>
-                        <ManageContactComponent
-                            mode={modalMode}
-                            visible={modalOpen}
-                            data={activeUser ?? undefined}
-                            onClose={handleClose}
-                            onSave={handleSave}
-                        />
+                        <div style={{ padding: "16px", height: "calc(100% - 60px)", overflow: "auto" }}>
+                            <ManageContactComponent
+                                mode={modalMode}
+                                visible={modalOpen}
+                                data={activeUser ?? undefined}
+                                onClose={handleClose}
+                                onSave={handleSave}
+                            />
+                        </div>
                     </div>
                 </div>
             )}
@@ -266,11 +279,9 @@ function StatusBadge({ value }: { value: string }) {
         <span style={{ 
             background: bg, 
             color, 
-            padding: "6px 12px", 
-            borderRadius: 8, 
-            fontSize: 13,
-            fontWeight: "500",
-            display: "inline-block"
+            padding: "4px 8px", 
+            borderRadius: 4, 
+            fontSize: 12
         }}>
             {value}
         </span>
@@ -279,37 +290,34 @@ function StatusBadge({ value }: { value: string }) {
 
 const thStyle: React.CSSProperties = { 
     textAlign: "left", 
-    padding: "15px", 
+    padding: "8px", 
     cursor: "pointer", 
     userSelect: "none",
-    fontWeight: "600",
-    borderBottom: "2px solid #dee2e6",
+    fontWeight: "bold",
+    borderBottom: "1px solid #ddd",
     fontSize: "14px"
 };
 
 const tdStyle: React.CSSProperties = { 
-    padding: "15px", 
+    padding: "8px", 
     verticalAlign: "middle",
-    borderBottom: "1px solid #eee",
     fontSize: "14px"
 };
 
 const buttonStyle: React.CSSProperties = {
-    padding: "8px 16px",
+    padding: "4px 8px",
     backgroundColor: "#17a2b8",
     color: "white",
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
-    fontSize: "13px",
-    fontWeight: "500",
-    transition: "background-color 0.2s"
+    fontSize: "12px"
 };
 
 const modalOverlayStyle: React.CSSProperties = {
-    position: "fixed", 
+    position: "absolute", 
     inset: 0, 
-    background: "rgba(0,0,0,0.6)", 
+    background: "rgba(0,0,0,0.5)", 
     display: "flex", 
     alignItems: "center", 
     justifyContent: "center", 
@@ -318,11 +326,14 @@ const modalOverlayStyle: React.CSSProperties = {
 
 const modalStyle: React.CSSProperties = {
     background: "#fff", 
-    borderRadius: 10, 
-    boxShadow: "0 15px 35px rgba(0,0,0,0.3)", 
-    width: "95%", 
-    maxWidth: 1000, 
-    maxHeight: "95vh", 
+    borderRadius: 4, 
+    position: "absolute",
+    top: "2.5%",
+    left: "2.5%",
+    width: "95%",
+    height: "95%",
     overflow: "auto",
-    position: "relative"
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: "none"
 };

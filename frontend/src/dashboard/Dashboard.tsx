@@ -49,12 +49,15 @@ const Histogram: React.FC<{
 
   const xLabels = labels.length >= data.length ? labels.slice(-data.length) : data.map((_, i) => `T-${data.length - i}`);
 
+  const gridColor = useColorModeValue("gray.400", "gray.600");
+  const labelColor = useColorModeValue("gray.500", "gray.400");
+
   return (
     <Box width="100%" position="relative">
       {/* Subtle grid lines */}
       <Box position="absolute" top="0" left="0" right="0" bottom="0" opacity={0.1}>
         {[0, 25, 50, 75, 100].map((pct) => (
-          <Box key={pct} position="absolute" top={`${100 - pct}%`} left="0" right="0" height="1px" bg="gray.400" />
+          <Box key={pct} position="absolute" top={`${100 - pct}%`} left="0" right="0" height="1px" bg={gridColor} />
         ))}
       </Box>
 
@@ -81,7 +84,7 @@ const Histogram: React.FC<{
       {/* X labels */}
       <HStack spacing={1} mt={2} justify="space-between">
         {xLabels.map((l, i) => (
-          <Text key={i} fontSize="xs" color="gray.500" textAlign="center" flex="1">
+          <Text key={i} fontSize="xs" color={labelColor} textAlign="center" flex="1">
             {l}
           </Text>
         ))}
@@ -92,8 +95,9 @@ const Histogram: React.FC<{
 
 /* Cleaner Chart Tile */
 const ChartTile: React.FC<{ data: ChartData; onRefresh?: (id: string) => void }> = ({ data, onRefresh }) => {
-  const bg = useColorModeValue("white", "gray.700");
+  const bg = useColorModeValue("white", "gray.800");
   const muted = useColorModeValue("gray.500", "gray.300");
+  const statNumberColor = useColorModeValue("gray.800", "white");
   return (
     <Box bg={bg} borderRadius="lg" boxShadow="sm" p={5} minH="200px" display="flex" flexDirection="column">
       <HStack mb={3} align="center">
@@ -101,7 +105,7 @@ const ChartTile: React.FC<{ data: ChartData; onRefresh?: (id: string) => void }>
           <StatLabel fontSize="sm" color={muted} fontWeight="500">
             {data.title}
           </StatLabel>
-          <StatNumber fontSize="2xl" color="gray.800" fontWeight="bold">
+          <StatNumber fontSize="2xl" color={statNumberColor} fontWeight="bold">
             {data.value}
           </StatNumber>
         </Stat>
