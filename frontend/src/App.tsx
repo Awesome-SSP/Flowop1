@@ -1,5 +1,5 @@
 import React from "react";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme, ColorModeScript } from "@chakra-ui/react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./AuthPages/Login";
 import Auth from "./AuthPages/Auth";
@@ -18,7 +18,7 @@ import ManageContact from "./pages/administration/ManageContact";
 const theme = extendTheme({
   config: {
     initialColorMode: "light",
-    useSystemColorMode: false,
+    useSystemColorMode: true, // enable system dark mode support
   },
 });
 
@@ -34,49 +34,52 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 const App: React.FC = () => {
   return (
-    <ChakraProvider theme={theme}>
-      <BrowserRouter>
-        <Routes>
-          {/* public route - login page */}
-          <Route path="/" element={<Login />} />
+    <>
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+      <ChakraProvider theme={theme}>
+        <BrowserRouter>
+          <Routes>
+            {/* public route - login page */}
+            <Route path="/" element={<Login />} />
 
-          {/* role selection after successful login */}
-          <Route path="/auth" element={<Auth />} />
+            {/* role selection after successful login */}
+            <Route path="/auth" element={<Auth />} />
 
-          {/* protected routes wrapped by MainLayout (contains Sidebar + Outlet) */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <MainLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/data" element={<Data />} />
+            {/* protected routes wrapped by MainLayout (contains Sidebar + Outlet) */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <MainLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/data" element={<Data />} />
 
-            {/* documents with nested routes */}
-            <Route path="/documents">
-              <Route index element={<Navigate to="uploads" replace />} />
-              <Route path="uploads" element={<MyUploads />} />
-              <Route path="downloads" element={<MyDownloads />} />
+              {/* documents with nested routes */}
+              <Route path="/documents">
+                <Route index element={<Navigate to="uploads" replace />} />
+                <Route path="uploads" element={<MyUploads />} />
+                <Route path="downloads" element={<MyDownloads />} />
+              </Route>
+
+              {/* administration with nested routes */}
+              <Route path="/admin">
+                <Route index element={<Navigate to="contacts" replace />} />
+                <Route path="contacts" element={<ViewContact />} />
+                <Route path="notices" element={<ManageNotice />} />
+                <Route path="add-user" element={<AddUser />} />
+                <Route path="manage-contact" element={<ManageContact />} />
+              </Route>
             </Route>
 
-            {/* administration with nested routes */}
-            <Route path="/admin">
-              <Route index element={<Navigate to="contacts" replace />} />
-              <Route path="contacts" element={<ViewContact />} />
-              <Route path="notices" element={<ManageNotice />} />
-              <Route path="add-user" element={<AddUser />} />
-              <Route path="manage-contact" element={<ManageContact />} />
-            </Route>
-          </Route>
-
-          {/* fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </ChakraProvider>
+            {/* fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </ChakraProvider>
+    </>
   );
 };
 
