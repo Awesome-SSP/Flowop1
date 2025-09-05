@@ -118,7 +118,7 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
                 borderRadius="md"
                 cursor="pointer"
                 onClick={() => setOpen((s) => ({ ...s, [item.label]: !s[item.label] }))}
-                _hover={{ bg: useColorModeValue("orange.200", "purple.700") }}  // Light mode orange, dark mode purple
+                _hover={{ bg: useColorModeValue("orange.200", "purple.700") }}
                 align="center"
                 justify="space-between"
               >
@@ -148,6 +148,8 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
                       key={child.to}
                       to={child.to}
                       onClick={() => {
+                        // force navigation even if already on same route by adding changing state
+                        navigate(child.to, { state: { t: Date.now() } });
                         onItemClick?.();
                       }}
                     >
@@ -161,7 +163,7 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
                           fontWeight={500}
                           color={isActive ? activeColor : textColor}
                           bg={isActive ? activeBg : undefined}
-                          _hover={{ textDecoration: "none", bg: useColorModeValue("orange.200", "purple.700") }}  // Light mode orange, dark mode purple
+                          _hover={{ textDecoration: "none", bg: useColorModeValue("orange.200", "purple.700") }}
                         >
                           <Text fontSize="sm">{child.label}</Text>
                         </Link>
@@ -176,6 +178,8 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
               key={item.to ?? item.label}
               to={item.to ?? "#"}
               onClick={() => {
+                // force navigation on every click
+                if (item.to) navigate(item.to, { state: { t: Date.now() } });
                 onItemClick?.();
               }}
             >
@@ -189,7 +193,7 @@ const SideBar: React.FC<SideBarProps> = ({ isOpen: controlledIsOpen, onOpen: con
                   fontWeight={500}
                   color={isActive ? activeColor : textColor}
                   bg={isActive ? activeBg : undefined}
-                  _hover={{ textDecoration: "none", bg: useColorModeValue("orange.200", "purple.700") }}  // Light mode orange, dark mode purple
+                  _hover={{ textDecoration: "none", bg: useColorModeValue("orange.200", "purple.700") }}
                 >
                   <Icon as={item.icon} boxSize={5} mr={3} />
                   <Text fontSize="sm">{item.label}</Text>
