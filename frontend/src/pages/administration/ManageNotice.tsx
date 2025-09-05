@@ -17,16 +17,11 @@ import {
   Container,
   Grid,
   IconButton,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
+  // Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, useDisclosure, // removed
 } from "@chakra-ui/react"
 import { SearchIcon, CloseIcon } from "@chakra-ui/icons"
-import AddUser from "./AddUser"
+// import AddUser from "./AddUser" // removed (page will be routed)
+import { useNavigate } from "react-router-dom"
 
 interface User {
   id: number
@@ -126,7 +121,9 @@ export default function ManageNotice() {
   const itemsPerPage = 10
   const [sortColumn, setSortColumn] = useState<keyof User | null>(null)
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  // const { isOpen, onOpen, onClose } = useDisclosure() // removed
+
+  const navigate = useNavigate()
 
   const filteredUsers = mockUsers.filter(
     (user) =>
@@ -207,7 +204,7 @@ export default function ManageNotice() {
                 colorScheme="blue"
                 bg="blue.600"
                 _hover={{ bg: "blue.700" }}
-                onClick={onOpen}
+                onClick={() => navigate("/admin/add-user")}
                 size="md"
               >
                 Add User
@@ -293,7 +290,7 @@ export default function ManageNotice() {
               </Thead>
               <Tbody>
                 {currentUsers.map((user, index) => (
-                  <Tr key={user.id}>
+                  <Tr key={user.id} cursor="pointer" _hover={{ bg: "gray.50" }} onClick={() => navigate(`/administration/add-user?userId=${user.id}`)}>
                     <Td textAlign="center" fontSize="xs">{startIndex + index + 1}</Td>
                     <Td fontSize="xs" fontWeight="medium">{user.name}</Td>
                     <Td fontSize="xs">{user.email}</Td>
@@ -374,16 +371,7 @@ export default function ManageNotice() {
         </VStack>
       </Box>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Add New User</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <AddUser onClose={onClose} />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      {/* Modal removed — navigation to /administration/add-user is used instead */}
     </Container>
   )
 }

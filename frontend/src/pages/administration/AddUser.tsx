@@ -13,37 +13,68 @@ import {
   useToast,
   Grid,
   Container,
-  IconButton,
   Flex,
 } from "@chakra-ui/react"
-import { CloseIcon } from "@chakra-ui/icons"
+import { ArrowBackIcon } from "@chakra-ui/icons"
+import { useNavigate } from "react-router-dom"
 import * as yup from "yup"
 
 const validationSchema = yup.object().shape({
-  type: yup.string().oneOf(["individual", "company"], "Select a valid type").required("Type is required"),
+  type: yup.string().oneOf(["individual", "company"], "Invalid type").required("Type is required"),
+  existingContacts: yup.string(),
   firstName: yup
     .string()
     .trim()
-    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "First name contains invalid characters")
+    .required("First name is required")
     .min(2, "First name must be at least 2 characters")
     .max(50, "First name must be at most 50 characters")
-    .required("First name is required"),
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "First name contains invalid characters (letters, spaces, hyphens, apostrophes only)"),
   lastName: yup
     .string()
     .trim()
-    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "Last name contains invalid characters")
+    .required("Last name is required")
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name must be at most 50 characters")
-    .required("Last name is required"),
-  email: yup.string().trim().lowercase().email("Enter a valid email address").max(254).required("Email is required"),
-  confirmEmail: yup.string().trim().lowercase().oneOf([yup.ref("email")], "Emails must match").required(),
-  phoneNo: yup.string().trim().matches(/^\d{7,15}$/, "Phone number must be 7–15 digits").required("Phone is required"),
-  role: yup.string().oneOf(["admin", "manager", "user"], "Select a valid role").required("Role is required"),
-  userGroup: yup.string().trim().max(100),
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "Last name contains invalid characters (letters, spaces, hyphens, apostrophes only)")
+    .test("not-equal-first", "First and last name cannot be the same", function (value) {
+      const { firstName } = this.parent
+      if (!firstName || !value) return true
+      return firstName.trim().toLowerCase() !== value.trim().toLowerCase()
+    }),
+  email: yup
+    .string()
+    .trim()
+    .lowercase()
+    .email("Enter a valid email address")
+    .max(254, "Email too long")
+    .required("Email is required"),
+  confirmEmail: yup
+    .string()
+    .trim()
+    .lowercase()
+    .oneOf([yup.ref("email")], "Emails must match")
+    .required("Confirm email is required"),
+  countryCode: yup.string().required("Country code is required"),
+  phoneNo: yup
+    .string()
+    .trim()
+    .required("Phone number is required")
+    .matches(/^\d{7,15}$/, "Phone number must be 7-15 digits (no spaces or special chars)")
+    .min(7, "Phone number too short")
+    .max(10, "Phone number too long"),
+  role: yup.string().oneOf(["admin", "manager", "user"], "Invalid role").required("Role is required"),
+  userGroup: yup
+    .string()
+    .trim()
+    .required("User group is required")
+    .min(2, "User group too short")
+    .max(100, "User group too long")
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ0-9' -]+$/, "User group contains invalid characters"),
 })
 
 export default function AddUser({ onClose }: { onClose?: () => void }) {
   const toast = useToast()
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     type: "",
     existingContacts: "",
@@ -51,6 +82,7 @@ export default function AddUser({ onClose }: { onClose?: () => void }) {
     lastName: "",
     email: "",
     confirmEmail: "",
+    countryCode: "+1", // default to US
     phoneNo: "",
     role: "",
     userGroup: "None Selected",
@@ -77,6 +109,7 @@ export default function AddUser({ onClose }: { onClose?: () => void }) {
       lastName: "",
       email: "",
       confirmEmail: "",
+      countryCode: "+1",
       phoneNo: "",
       role: "",
       userGroup: "None Selected",
@@ -117,20 +150,21 @@ export default function AddUser({ onClose }: { onClose?: () => void }) {
           <Text fontSize="xl" fontWeight="bold">
             Add New User
           </Text>
-          <IconButton
-            aria-label="Close"
-            icon={<CloseIcon />}
-            size="sm"
+          <Button
+            leftIcon={<ArrowBackIcon />}
             variant="ghost"
-            onClick={() => onClose?.()}
-          />
+            size="sm"
+            onClick={() => navigate("/admin/notices")}
+          >
+            Back
+          </Button>
         </Flex>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
           <VStack spacing={5} align="stretch">
             {/* Row 1 */}
-            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={5}>
+            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={5} alignItems="center">
               <FormControl isInvalid={!!errors.type}>
                 <FormLabel fontSize="sm">
                   Type <span style={{ color: "red" }}>*</span>
@@ -181,7 +215,7 @@ export default function AddUser({ onClose }: { onClose?: () => void }) {
             </Grid>
 
             {/* Row 2 */}
-            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={5}>
+            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={5} alignItems="center">
               <FormControl isInvalid={!!errors.lastName}>
                 <FormLabel fontSize="sm">
                   Last Name <span style={{ color: "red" }}>*</span>
@@ -208,13 +242,36 @@ export default function AddUser({ onClose }: { onClose?: () => void }) {
             </Grid>
 
             {/* Row 3 */}
-            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={5}>
-              <FormControl isInvalid={!!errors.phoneNo}>
+            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={5} alignItems="center">
+              <FormControl isInvalid={!!errors.phoneNo || !!errors.countryCode}>
                 <FormLabel fontSize="sm">
                   Phone No <span style={{ color: "red" }}>*</span>
                 </FormLabel>
-                <Input name="phoneNo" placeholder="e.g. 7700123456" value={formData.phoneNo} onChange={handleChange} size="sm" h="40px" />
-                <FormErrorMessage>{errors.phoneNo}</FormErrorMessage>
+                <HStack spacing={2}>
+                  <Select
+                    name="countryCode"
+                    value={formData.countryCode}
+                    onChange={(e) => handleSelectChange("countryCode", e.target.value)}
+                    size="sm"
+                    h="40px"
+                    w="80px"
+                  >
+                    <option value="+1">+1</option>
+                    <option value="+44">+44</option>
+                    <option value="+91">+91</option>
+                    {/* Add more as needed */}
+                  </Select>
+                  <Input
+                    name="phoneNo"
+                    placeholder="e.g. 7700123456"
+                    value={formData.phoneNo}
+                    onChange={handleChange}
+                    size="sm"
+                    h="40px"
+                    flex="1"
+                  />
+                </HStack>
+                <FormErrorMessage>{errors.countryCode || errors.phoneNo}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.role}>

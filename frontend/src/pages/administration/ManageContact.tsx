@@ -17,8 +17,10 @@ import {
   Text,
   IconButton,
   Divider,
+  Spacer,
 } from "@chakra-ui/react"
-import { CalendarIcon, AddIcon, DeleteIcon } from "@chakra-ui/icons"
+import { CalendarIcon, AddIcon, DeleteIcon, ArrowBackIcon } from "@chakra-ui/icons"
+import { useNavigate } from "react-router-dom"
 import * as yup from "yup"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
@@ -36,43 +38,142 @@ type User = {
   children?: string[]
 }
 
-/* validation schema (improved with more rules) */
+/* validation schema (improved with stricter rules for production) */
 const validationSchema = yup.object().shape({
-  type: yup.string().required("Type is required"),
-  firstName: yup.string().trim().required("First name is required").min(2, "First name must be at least 2 characters"),
+  type: yup.string().oneOf(["individual", "company"], "Invalid type").required("Type is required"),
+  existingContacts: yup.string(),
+  firstName: yup
+    .string()
+    .trim()
+    .required("First name is required")
+    .min(2, "First name must be at least 2 characters")
+    .max(50, "First name must be at most 50 characters")
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "First name contains invalid characters (letters, spaces, hyphens, apostrophes only)"),
   lastName: yup
     .string()
     .trim()
     .required("Last name is required")
     .min(2, "Last name must be at least 2 characters")
+    .max(50, "Last name must be at most 50 characters")
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "Last name contains invalid characters (letters, spaces, hyphens, apostrophes only)")
     .test("not-equal-first", "First and last name cannot be the same", function (value) {
       const { firstName } = this.parent
       if (!firstName || !value) return true
       return firstName.trim().toLowerCase() !== value.trim().toLowerCase()
     }),
-  status: yup.string().required("Status is required"),
-  group: yup.string().trim().required("Group is required"),
-  emails: yup.array().of(yup.string().email("Invalid email")).min(1, "At least one email is required"),
+  suffix: yup.string().trim().max(10, "Suffix too long"),
+  title: yup.string().trim().max(50, "Title too long"),
+  status: yup.string().oneOf(["Active", "Inactive"], "Invalid status").required("Status is required"),
+  goesBy: yup.string().trim().max(50, "Goes by too long"),
+  pronouns: yup.string().oneOf(["he/him", "she/her", "they/them"], "Invalid pronouns"),
+  emails: yup
+    .array()
+    .of(
+      yup
+        .string()
+        .trim()
+        .lowercase()
+        .email("Invalid email format")
+        .max(254, "Email too long")
+    )
+    .min(1, "At least one email is required")
+    .max(5, "Maximum 5 emails allowed")
+    .test("unique-emails", "Emails must be unique", function (value) {
+      if (!value) return true
+      const unique = new Set(value.map((email) => (email ?? "").toLowerCase()))
+      return unique.size === value.length
+    }),
   officeNumber: yup
     .string()
     .required("Office number is required")
-    .matches(/^\d{10}$/, "Office number must be exactly 10 digits"),
+    .matches(/^\d{7,15}$/, "Office number must be 7-15 digits (no spaces or special chars)"),
   cellNumber: yup
     .string()
     .required("Cell number is required")
-    .matches(/^\d{10}$/, "Cell number must be exactly 10 digits"),
-  addresses: yup.array().of(
-    yup.object({
-      line1: yup.array().of(yup.string().required("Address line 1 is required")).min(1, "At least one address line 1 is required"),
-      line2: yup.string(),
-      city: yup.string().required("City is required"),
-      state: yup.string().required("State is required"),
-      zip: yup.string().matches(/^\d{5}(\d{4})?$/, "Zip must be 5 or 9 digits").required("Zip is required"),
-    })
-  ).min(1, "At least one address is required"),
-  children: yup.array().of(yup.string()),
-  dateOfBirth: yup.date().optional().max(new Date(), "Date of birth cannot be in the future"),
-  workAnniversary: yup.date().optional(),
+    .matches(/^\d{7,15}$/, "Cell number must be 7-15 digits (no spaces or special chars)"),
+  officeCountryCode: yup.string().required("Office country code is required"),
+  cellCountryCode: yup.string().required("Cell country code is required"),
+  addresses: yup
+    .array()
+    .of(
+      yup.object({
+        line1: yup
+          .array()
+          .of(
+            yup
+              .string()
+              .trim()
+              .required("Address line 1 is required")
+              .min(5, "Address line 1 too short")
+              .max(100, "Address line 1 too long")
+          )
+          .min(1, "At least one address line 1 is required")
+          .max(3, "Maximum 3 address lines"),
+        line2: yup.string().trim().max(100, "Address line 2 too long"),
+        city: yup
+          .string()
+          .trim()
+          .required("City is required")
+          .min(2, "City too short")
+          .max(50, "City too long")
+          .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "City contains invalid characters"),
+        state: yup.string().required("State is required"),
+        zip: yup
+          .string()
+          .required("Zip is required")
+          .matches(/^\d{5}(\d{4})?$/, "Zip must be 5 or 9 digits"),
+      })
+    )
+    .min(1, "At least one address is required")
+    .max(3, "Maximum 3 addresses"),
+  dateOfBirth: yup
+    .date()
+    .optional()
+    .max(new Date(), "Date of birth cannot be in the future")
+    .min(new Date(1900, 0, 1), "Date of birth too old"),
+  workAnniversary: yup
+    .date()
+    .optional()
+    .max(new Date(), "Work anniversary cannot be in the future")
+    .min(new Date(1900, 0, 1), "Work anniversary too old"),
+  maritalStatus: yup.string().oneOf(["single", "married", "divorced"], "Invalid marital status"),
+  spouseName: yup
+    .string()
+    .trim()
+    .max(50, "Spouse name too long")
+    .when("maritalStatus", function (maritalStatus, schema) {
+      // maritalStatus can be provided as a single value or an array depending on yup typings,
+      // normalize to a single value before comparing to avoid the any[] vs string type issue.
+      const ms = Array.isArray(maritalStatus) ? maritalStatus[0] : maritalStatus
+      return ms === "married"
+        ? (schema as yup.StringSchema).required("Spouse name is required for married status")
+        : schema
+    }),
+  children: yup
+    .array()
+    .of(
+      yup
+        .string()
+        .trim()
+        .max(50, "Child name too long")
+        .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "Child name contains invalid characters")
+    )
+    .max(10, "Maximum 10 children"),
+  college: yup.string().trim().max(100, "College name too long"),
+  degree: yup.string().trim().max(100, "Degree too long"),
+  priorEmployer: yup.string().trim().max(100, "Prior employer too long"),
+  endDate: yup.date().optional().max(new Date(), "End date cannot be in the future"),
+  notes: yup.string().trim().max(500, "Notes too long"),
+  sportsTeam: yup.string().trim().max(100, "Sports team too long"),
+  favorites: yup.string().trim().max(200, "Favorites too long"),
+  group: yup
+    .string()
+    .trim()
+    .required("Group is required")
+    .min(2, "Group too short")
+    .max(50, "Group too long")
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ0-9' -]+$/, "Group contains invalid characters"),
+  report: yup.string(),
 })
 
 const initialValues = {
@@ -110,35 +211,40 @@ const initialValues = {
 type ContactFormValues = typeof initialValues
 
 type ManageContactProps = {
-  mode: "view" | "edit" | "create"
-  visible: boolean
+  mode?: "view" | "edit" | "create"
+  visible?: boolean
   data?: User
-  onClose: () => void
-  onSave: (u: User) => void
+  onClose?: () => void
+  onSave?: (u: User) => void
 }
 
-export default function ManageContact({ mode, visible, data, onClose, onSave }: ManageContactProps) {
+export default function ManageContact({ mode = "create", visible = true, data, onClose = () => {}, onSave = () => {} }: ManageContactProps) {
   const toast = useToast()
+  const navigate = useNavigate()
   const [values, setValues] = useState<ContactFormValues>(initialValues)
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormValues, string>>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // helper to map incoming User -> form values (used by useEffect and reset)
+  const mapDataToValues = (d?: User): ContactFormValues => {
+    if (!d) return initialValues
+    const nameParts = d.name.split(" ")
+    return {
+      ...initialValues,
+      firstName: nameParts[0] || "",
+      lastName: nameParts.slice(1).join(" ") || "",
+      title: d.role,
+      emails: d.emails || [d.email],
+      status: d.contactStatus === "active" ? "Active" : "Inactive",
+      addresses: d.addresses || [{ line1: [""], line2: "", city: "", state: "", zip: "" }],
+      children: d.children || [""],
+    }
+  }
+
   // Sync form with data when data changes or modal opens
   useEffect(() => {
     if (data) {
-      // Map User data to ContactFormValues
-      const nameParts = data.name.split(" ")
-      setValues({
-        ...initialValues,
-        firstName: nameParts[0] || "",
-        lastName: nameParts.slice(1).join(" ") || "",
-        title: data.role,
-        emails: data.emails || [data.email],
-        status: data.contactStatus === "active" ? "Active" : "Inactive",
-        addresses: data.addresses || [{ line1: [""], line2: "", city: "", state: "", zip: "" }],
-        children: data.children || [""],
-        // Map other fields if available, otherwise keep initial
-      })
+      setValues(mapDataToValues(data))
     } else if (mode === "create") {
       setValues(initialValues)
     }
@@ -335,6 +441,17 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
 
   const isReadOnly = mode === "view"
 
+  const handleReset = () => {
+    // Reset form values: if creating, clear to initial; otherwise restore from provided data
+    if (mode === "create") {
+      setValues(initialValues)
+    } else {
+      setValues(mapDataToValues(data))
+    }
+    setErrors({})
+    setIsSubmitting(false)
+  }
+
   const CustomDateInput = React.forwardRef<HTMLButtonElement, any>(({ value, onClick }, ref) => (
     <Button
       ref={ref}
@@ -352,7 +469,19 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
   return (
     <Container maxW="5xl" py={1}>
       <Box mb={1}>
-        <Heading size="sm" textAlign="center">CONTACT REGISTRATION</Heading>
+        <HStack>
+          <Heading size="sm" textAlign="center" flex="1">
+            CONTACT REGISTRATION
+          </Heading>
+          <Button
+            size="sm"
+            variant="ghost"
+            leftIcon={<ArrowBackIcon />}
+            onClick={() => navigate("/admin/notices")}
+          >
+            Back
+          </Button>
+        </HStack>
       </Box>
 
       <Box bg="whiteAlpha.900" p={2} borderRadius="md" boxShadow="md">
@@ -377,7 +506,7 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                   <option value="individual">Individual</option>
                   <option value="company">Company</option>
                 </Select>
-                <FormErrorMessage>{errors.type}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.type}</FormErrorMessage>
               </FormControl>
 
               <FormControl>
@@ -402,13 +531,13 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
               <FormControl isInvalid={!!errors.firstName}>
                 <FormLabel fontSize="xs" fontWeight="semibold">First Name <span style={{color: 'red'}}>*</span></FormLabel>
                 <Input name="firstName" value={values.firstName} onChange={handleChange} placeholder="First Name" isReadOnly={isReadOnly} size="xs" />
-                <FormErrorMessage>{errors.firstName}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.firstName}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.lastName}>
                 <FormLabel fontSize="xs" fontWeight="semibold">Last Name <span style={{color: 'red'}}>*</span></FormLabel>
                 <Input name="lastName" value={values.lastName} onChange={handleChange} placeholder="Last Name" isReadOnly={isReadOnly} size="xs" />
-                <FormErrorMessage>{errors.lastName}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.lastName}</FormErrorMessage>
               </FormControl>
             </Grid>
 
@@ -442,7 +571,7 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                   </HStack>
                 ))}
               </VStack>
-              <FormErrorMessage>{errors.emails}</FormErrorMessage>
+              <FormErrorMessage fontSize="xs">{errors.emails}</FormErrorMessage>
             </FormControl>
 
             <Grid templateColumns="repeat(3, 1fr)" gap={1} alignItems="center">
@@ -458,7 +587,7 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                   </Select>
                   <Input name="officeNumber" value={values.officeNumber} onChange={handleChange} placeholder="Office Number" maxLength={10} isReadOnly={isReadOnly} size="xs" flex={1} />
                 </HStack>
-                <FormErrorMessage>{errors.officeNumber}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.officeNumber}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.cellNumber}>
@@ -473,13 +602,13 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                   </Select>
                   <Input name="cellNumber" value={values.cellNumber} onChange={handleChange} placeholder="Cell Number" maxLength={10} isReadOnly={isReadOnly} size="xs" flex={1} />
                 </HStack>
-                <FormErrorMessage>{errors.cellNumber}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.cellNumber}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.group}>
                 <FormLabel fontSize="xs" fontWeight="semibold">Group <span style={{color: 'red'}}>*</span></FormLabel>
                 <Input name="group" value={values.group} onChange={handleChange} placeholder="Group" isReadOnly={isReadOnly} size="xs" />
-                <FormErrorMessage>{errors.group}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.group}</FormErrorMessage>
               </FormControl>
             </Grid>
 
@@ -535,7 +664,7 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                   </Box>
                 ))}
               </VStack>
-              <FormErrorMessage>{errors.addresses}</FormErrorMessage>
+              <FormErrorMessage fontSize="xs">{errors.addresses}</FormErrorMessage>
             </FormControl>
 
             <Text fontSize="sm" fontWeight="bold" color="gray.600" mt={2}>Additional Details</Text>
@@ -548,7 +677,7 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </Select>
-                <FormErrorMessage>{errors.status}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.status}</FormErrorMessage>
               </FormControl>
 
               <FormControl>
@@ -571,19 +700,9 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                     customInput={<CustomDateInput />}
                     disabled={isReadOnly}
                     popperPlacement="bottom-start"
-                    popperModifiers={[
-                      {
-                        name: "preventOverflow",
-                        options: {
-                          rootBoundary: "viewport",
-                          tether: false,
-                          altAxis: true,
-                        },
-                      },
-                    ] as any}
                   />
                 </Box>
-                <FormErrorMessage>{errors.dateOfBirth}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.dateOfBirth}</FormErrorMessage>
               </FormControl>
 
               <FormControl>
@@ -596,16 +715,6 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                     customInput={<CustomDateInput />}
                     disabled={isReadOnly}
                     popperPlacement="bottom-start"
-                    popperModifiers={[
-                      {
-                        name: "preventOverflow",
-                        options: {
-                          rootBoundary: "viewport",
-                          tether: false,
-                          altAxis: true,
-                        },
-                      },
-                    ] as any}
                   />
                 </Box>
               </FormControl>
@@ -639,7 +748,7 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                     </HStack>
                   ))}
                 </VStack>
-                <FormErrorMessage>{errors.children}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.children}</FormErrorMessage>
               </FormControl>
             </Grid>
 
@@ -669,16 +778,6 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
                     customInput={<CustomDateInput />}
                     disabled={isReadOnly}
                     popperPlacement="bottom-start"
-                    popperModifiers={[
-                      {
-                        name: "preventOverflow",
-                        options: {
-                          rootBoundary: "viewport",
-                          tether: false,
-                          altAxis: true,
-                        },
-                      },
-                    ] as any}
                   />
                 </Box>
               </FormControl>
@@ -703,20 +802,25 @@ export default function ManageContact({ mode, visible, data, onClose, onSave }: 
 
             <Box textAlign="center" pt={1}>
               <HStack spacing={2} justify="center">
-                <Button variant="outline" onClick={onClose} size="xs">
-                  Cancel
+                {/* Reset button */}
+                <Button
+                  variant="ghost"
+                  onClick={handleReset}
+                  size="xs"
+                >
+                  Reset
                 </Button>
-                {(mode === "edit" || mode === "create") && (
-                  <Button
-                    type="submit"
-                    colorScheme="blue"
-                    size="xs"
-                    px={3}
-                    isLoading={isSubmitting}
-                  >
-                    {mode === "create" ? "Register Contact" : "Save Changes"}
-                  </Button>
-                )}
+
+                {/* Register/Save button */}
+                <Button
+                  type="submit"
+                  colorScheme="blue"
+                  size="xs"
+                  px={3}
+                  isLoading={isSubmitting}
+                >
+                  {mode === "create" ? "Register" : "Save Changes"}
+                </Button>
               </HStack>
             </Box>
           </VStack>

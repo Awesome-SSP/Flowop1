@@ -9,10 +9,10 @@ import Reports from "./pages/Reports";
 import Data from "./pages/Data";
 import MyDownloads from "./pages/documentsTransfers/MyDownloads";
 import MyUploads from "./pages/documentsTransfers/MyUploads";
-// replace ManageContact import with ViewControl
-import ViewControl from "./pages/administration/ViewContact";
 import ManageNotice from "./pages/administration/ManageNotice";
 import ViewContact from "./pages/administration/ViewContact";
+import AddUser from "./pages/administration/AddUser";
+import ManageContact from "./pages/administration/ManageContact";
 
 // Extended theme with color mode support for better theming
 const theme = extendTheme({
@@ -67,6 +67,8 @@ const App: React.FC = () => {
               <Route index element={<Navigate to="contacts" replace />} />
               <Route path="contacts" element={<ViewContact />} />
               <Route path="notices" element={<ManageNotice />} />
+              <Route path="add-user" element={<AddUser />} />
+              <Route path="manage-contact" element={<ManageContact />} />
             </Route>
           </Route>
 
